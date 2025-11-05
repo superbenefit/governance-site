@@ -18,7 +18,54 @@ SuperBenefit DAO embraces "minimum viable coordination"—establishing just enou
 
 The governance documentation content is maintained in a separate repository: [superbenefit/governance](https://github.com/superbenefit/governance)
 
-Content from that repository is integrated into this Astro Starlight site in the `src/content/docs/` directory.
+This content is integrated into the site using a **git submodule** located at `src/content/governance/`. This approach maintains a single source of truth for governance content while enabling dynamic page generation through Astro content loaders.
+
+### Working with the Governance Submodule
+
+#### First-Time Setup
+
+When cloning this repository for the first time, you need to initialize the submodule:
+
+```bash
+git submodule init
+git submodule update
+```
+
+Or clone the repository with submodules in one step:
+
+```bash
+git clone --recurse-submodules https://github.com/superbenefit/governance-site.git
+```
+
+#### Updating Governance Content
+
+To pull the latest governance content from the governance repository:
+
+```bash
+git submodule update --remote src/content/governance
+```
+
+This updates the submodule to the latest commit from the governance repository's main branch.
+
+#### Important Notes
+
+- **Do NOT edit files in `src/content/governance/` directly** - This directory contains the submodule, and changes here won't be tracked properly
+- **Content contributions** should be made to the [governance repository](https://github.com/superbenefit/governance), not this site repository
+- The submodule points to a specific commit in the governance repository
+- When you update the submodule, you'll need to commit the new submodule reference in this repository:
+
+```bash
+git add src/content/governance
+git commit -m "Update governance submodule to latest"
+```
+
+#### Checking Submodule Status
+
+To see the current state of the submodule:
+
+```bash
+git submodule status
+```
 
 ## Development
 

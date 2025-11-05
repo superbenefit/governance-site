@@ -1,0 +1,3 @@
+[submodule "src/content/governance"]
+	path = src/content/governance
+	url = https://github.com/superbenefit/governance

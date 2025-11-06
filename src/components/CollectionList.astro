@@ -1,0 +1,144 @@
+---
+/**
+ * CollectionList Component
+ *
+ * Displays a list of entries from a governance collection.
+ * Used by index pages to show agreements, policies, or proposals.
+ */
+import { getCollection } from 'astro:content';
+import { render } from 'astro:content';
+
+interface Props {
+	collection: 'agreements' | 'policies' | 'proposals';
+}
+
+const { collection } = Astro.props;
+
+// Get all entries from the specified collection
+const entries = await getCollection(collection);
+
+// Sort by ID (alphabetically, which maintains directory structure)
+const sortedEntries = entries.sort((a, b) => a.id.localeCompare(b.id));
+
+// Group by top-level directory
+const grouped = sortedEntries.reduce((acc, entry) => {
+	const parts = entry.id.split('/');
+	const group = parts.length > 1 ? parts[0] : '_root';
+	if (!acc[group]) acc[group] = [];
+	acc[group].push(entry);
+	return acc;
+}, {} as Record<string, typeof entries>);
+---
+
+<div class="collection-list">
+	{Object.entries(grouped).map(([group, items]) => (
+		<div class="collection-group">
+			{group !== '_root' && (
+				<h3 class="group-title">{group.charAt(0).toUpperCase() + group.slice(1)}</h3>
+			)}
+			<ul class="entry-list">
+				{items.map(async (entry) => {
+					const { headings } = await render(entry);
+					const title = entry.data.title || headings.find(h => h.depth === 1)?.text || entry.id;
+					const description = entry.data.description;
+
+					return (
+						<li class="entry-item">
+							<a href={`/${collection}/${entry.id}/`} class="entry-link">
+								<strong class="entry-title">{title}</strong>
+								{description && <p class="entry-description">{description}</p>}
+							</a>
+							{entry.data.status && (
+								<span class={`status-badge status-${entry.data.status}`}>
+									{entry.data.status}
+								</span>
+							)}
+						</li>
+					);
+				})}
+			</ul>
+		</div>
+	))}
+</div>
+
+<style>
+	.collection-list {
+		margin: 2rem 0;
+	}
+
+	.collection-group {
+		margin-bottom: 2.5rem;
+	}
+
+	.group-title {
+		font-size: 1.5rem;
+		margin-bottom: 1rem;
+		color: var(--sl-color-white);
+		border-bottom: 1px solid var(--sl-color-gray-5);
+		padding-bottom: 0.5rem;
+	}
+
+	.entry-list {
+		list-style: none;
+		padding: 0;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.entry-item {
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.5rem;
+		padding: 1rem;
+		transition: border-color 0.2s;
+		position: relative;
+	}
+
+	.entry-item:hover {
+		border-color: var(--sl-color-accent);
+	}
+
+	.entry-link {
+		text-decoration: none;
+		color: inherit;
+		display: block;
+	}
+
+	.entry-title {
+		color: var(--sl-color-white);
+		font-size: 1.1rem;
+		display: block;
+		margin-bottom: 0.5rem;
+	}
+
+	.entry-description {
+		color: var(--sl-color-gray-3);
+		margin: 0;
+		font-size: 0.9rem;
+	}
+
+	.status-badge {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		font-size: 0.75rem;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.25rem;
+		text-transform: uppercase;
+		font-weight: bold;
+	}
+
+	.status-draft {
+		background: var(--sl-color-orange-low);
+		color: var(--sl-color-orange-high);
+	}
+
+	.status-active {
+		background: var(--sl-color-green-low);
+		color: var(--sl-color-green-high);
+	}
+
+	.status-deprecated {
+		background: var(--sl-color-gray-5);
+		color: var(--sl-color-gray-3);
+	}
+</style>

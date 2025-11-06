@@ -1,0 +1,33 @@
+---
+/**
+ * Dynamic route for governance proposals
+ *
+ * Generates pages for all entries in the 'proposals' collection.
+ * Uses Starlight components for consistent UI/aesthetics.
+ *
+ * Routes generated:
+ * - /proposals/index/ (from proposals/index.md)
+ * - /proposals/* (from proposals/*.md)
+ */
+import { getCollection, render } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+
+export async function getStaticPaths() {
+	const proposals = await getCollection('proposals');
+	return proposals.map(entry => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+// Use title from frontmatter or extract from first H1
+const title = entry.data.title || headings.find(h => h.depth === 1)?.text || 'Untitled';
+const frontmatter = { ...entry.data, title };
+---
+
+<StarlightPage {frontmatter} {headings}>
+	<Content />
+</StarlightPage>

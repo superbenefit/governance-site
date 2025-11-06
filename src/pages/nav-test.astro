@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+
+const agreements = await getCollection('agreements');
+const policies = await getCollection('policies');
+const proposals = await getCollection('proposals');
+---
+
+<html>
+<head>
+<title>Navigation Test</title>
+<style>
+body { font-family: system-ui; padding: 2rem; max-width: 800px; margin: 0 auto; }
+h1 { color: #333; }
+h2 { color: #666; margin-top: 2rem; }
+ul { list-style: none; padding: 0; }
+li { margin: 0.5rem 0; }
+a { color: #0066cc; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.count { color: #999; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<h1>Governance Content Navigation Test</h1>
+<p>All links below should work. Click them to verify pages load.</p>
+
+<h2>Agreements <span class="count">({agreements.length} entries)</span></h2>
+<ul>
+{agreements.map(entry => (
+  <li><a href={`/agreements/${entry.id}/`}>{entry.id}</a></li>
+))}
+</ul>
+
+<h2>Policies <span class="count">({policies.length} entries)</span></h2>
+<ul>
+{policies.map(entry => (
+  <li><a href={`/policies/${entry.id}/`}>{entry.id}</a></li>
+))}
+</ul>
+
+<h2>Proposals <span class="count">({proposals.length} entries)</span></h2>
+<ul>
+{proposals.map(entry => (
+  <li><a href={`/proposals/${entry.id}/`}>{entry.id}</a></li>
+))}
+</ul>
+
+</body>
+</html>

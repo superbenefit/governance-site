@@ -1,0 +1,35 @@
+---
+/**
+ * Dynamic route for governance policies
+ *
+ * Generates pages for all entries in the 'policies' collection.
+ * Uses Starlight components for consistent UI/aesthetics.
+ *
+ * Routes generated:
+ * - /policies/index/ (from policies/index.md)
+ * - /policies/operations/* (from policies/operations/*.md)
+ * - /policies/metagovernance/* (from policies/metagovernance/*.md)
+ * - /policies/platforms/* (from policies/platforms/*.md)
+ */
+import { getCollection, render } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+
+export async function getStaticPaths() {
+	const policies = await getCollection('policies');
+	return policies.map(entry => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+// Use title from frontmatter or extract from first H1
+const title = entry.data.title || headings.find(h => h.depth === 1)?.text || 'Untitled';
+const frontmatter = { ...entry.data, title };
+---
+
+<StarlightPage {frontmatter} {headings}>
+	<Content />
+</StarlightPage>

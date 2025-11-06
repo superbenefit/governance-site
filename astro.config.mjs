@@ -4,6 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://governance.superbenefit.org',
 	integrations: [
 		starlight({
 			title: 'SuperBenefit DAO Governance',

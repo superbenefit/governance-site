@@ -1,0 +1,34 @@
+---
+/**
+ * Dynamic route for governance agreements
+ *
+ * Generates pages for all entries in the 'agreements' collection.
+ * Uses Starlight components for consistent UI/aesthetics.
+ *
+ * Routes generated:
+ * - /agreements/index/ (from agreements/index.md)
+ * - /agreements/dao/operating-agreement/ (from agreements/dao/operating-agreement.md)
+ * - /agreements/community/* (from agreements/community/*.md)
+ */
+import { getCollection, render } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+
+export async function getStaticPaths() {
+	const agreements = await getCollection('agreements');
+	return agreements.map(entry => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+// Use title from frontmatter or extract from first H1
+const title = entry.data.title || headings.find(h => h.depth === 1)?.text || 'Untitled';
+const frontmatter = { ...entry.data, title };
+---
+
+<StarlightPage {frontmatter} {headings}>
+	<Content />
+</StarlightPage>

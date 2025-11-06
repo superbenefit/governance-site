@@ -1,0 +1,53 @@
+---
+/**
+ * Debug page to list all collection entries
+ */
+import { getCollection } from 'astro:content';
+
+const agreements = await getCollection('agreements');
+const policies = await getCollection('policies');
+const proposals = await getCollection('proposals');
+---
+
+<html>
+<head>
+<title>Debug Collections</title>
+</head>
+<body>
+<h1>Debug Collections</h1>
+
+<h2>Agreements ({agreements.length})</h2>
+<ul>
+{agreements.map(entry => (
+  <li>
+    <strong>ID:</strong> {entry.id}<br/>
+    <strong>Title:</strong> {entry.data.title || 'No title'}<br/>
+    <strong>URL:</strong> <a href={`/agreements/${entry.id}/`}>/agreements/{entry.id}/</a>
+  </li>
+))}
+</ul>
+
+<h2>Policies ({policies.length})</h2>
+<ul>
+{policies.map(entry => (
+  <li>
+    <strong>ID:</strong> {entry.id}<br/>
+    <strong>Title:</strong> {entry.data.title || 'No title'}<br/>
+    <strong>URL:</strong> <a href={`/policies/${entry.id}/`}>/policies/{entry.id}/</a>
+  </li>
+))}
+</ul>
+
+<h2>Proposals ({proposals.length})</h2>
+<ul>
+{proposals.map(entry => (
+  <li>
+    <strong>ID:</strong> {entry.id}<br/>
+    <strong>Title:</strong> {entry.data.title || 'No title'}<br/>
+    <strong>URL:</strong> <a href={`/proposals/${entry.id}/`}>/proposals/{entry.id}/</a>
+  </li>
+))}
+</ul>
+
+</body>
+</html>

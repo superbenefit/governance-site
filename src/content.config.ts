@@ -60,10 +60,10 @@ export const collections = {
 	// Loads from: src/content/governance/agreements/**/*.md
 	// Rendered by: src/pages/agreements/[...slug].astro
 	// Routes: /agreements/dao/*, /agreements/community/*
-	// Note: Excludes index.md files (handled by docs collection in src/content/docs/)
+	// Note: Excludes index.md and readme.md files
 	agreements: defineCollection({
 		loader: glob({
-			pattern: ['**/*.md', '!**/readme.md', '!**/index.md'],
+			pattern: ['**/*.md', '!index.md', '!readme.md', '!README.md', '!**/index.md', '!**/readme.md', '!**/README.md'],
 			base: './src/content/governance/agreements'
 		}),
 		schema: governanceSchema,
@@ -73,10 +73,10 @@ export const collections = {
 	// Loads from: src/content/governance/policies/**/*.md
 	// Rendered by: src/pages/policies/[...slug].astro
 	// Routes: /policies/operations/*, /policies/metagovernance/*, /policies/platforms/*
-	// Note: Excludes index.md files (handled by docs collection in src/content/docs/)
+	// Note: Excludes index.md and readme.md files
 	policies: defineCollection({
 		loader: glob({
-			pattern: ['**/*.md', '!**/readme.md', '!**/index.md'],
+			pattern: ['**/*.md', '!index.md', '!readme.md', '!README.md', '!**/index.md', '!**/readme.md', '!**/README.md'],
 			base: './src/content/governance/policies'
 		}),
 		schema: governanceSchema,
@@ -86,10 +86,10 @@ export const collections = {
 	// Loads from: src/content/governance/proposals/**/*.md
 	// Rendered by: src/pages/proposals/[...slug].astro
 	// Routes: /proposals/*
-	// Note: Excludes index.md files (handled by docs collection in src/content/docs/)
+	// Note: Excludes index.md and readme.md files
 	proposals: defineCollection({
 		loader: glob({
-			pattern: ['**/*.md', '!**/readme.md', '!**/index.md'],
+			pattern: ['**/*.md', '!index.md', '!readme.md', '!README.md', '!**/index.md', '!**/readme.md', '!**/README.md'],
 			base: './src/content/governance/proposals'
 		}),
 		schema: governanceSchema,

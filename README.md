@@ -91,14 +91,33 @@ All commands are run from the root of the project:
 
 ```
 .
-├── public/              # Static assets (favicons, etc.)
+├── public/                    # Static assets (favicons, etc.)
 ├── src/
-│   ├── assets/         # Images and media files
+│   ├── assets/               # Images and media files
+│   ├── components/
+│   │   └── CollectionList.astro  # Component for querying/displaying collection entries
 │   ├── content/
-│   │   └── docs/       # Governance documentation (Markdown/MDX)
-│   └── content.config.ts
-├── astro.config.mjs    # Astro and Starlight configuration
-├── CLAUDE.md           # AI assistant guidance
+│   │   ├── docs/             # Site pages (landing, indexes) - MDX
+│   │   │   ├── agreements/
+│   │   │   │   └── index.mdx    # Agreements index with CollectionList
+│   │   │   ├── policies/
+│   │   │   │   └── index.mdx    # Policies index with CollectionList
+│   │   │   └── proposals/
+│   │   │       └── index.mdx    # Proposals index with CollectionList
+│   │   └── governance/       # Git submodule (governance repository)
+│   │       ├── agreements/   # Agreement markdown files
+│   │       ├── policies/     # Policy markdown files
+│   │       └── proposals/    # Proposal markdown files
+│   ├── pages/                # Dynamic route pages
+│   │   ├── agreements/
+│   │   │   └── [...slug].astro  # Renders agreement pages
+│   │   ├── policies/
+│   │   │   └── [...slug].astro  # Renders policy pages
+│   │   └── proposals/
+│   │       └── [...slug].astro  # Renders proposal pages
+│   └── content.config.ts     # Content collections configuration
+├── astro.config.mjs          # Astro and Starlight configuration
+├── CLAUDE.md                 # AI assistant guidance
 └── package.json
 ```
 
@@ -118,7 +137,103 @@ This site uses:
 - **Astro 5.x** - Modern static site generator
 - **Starlight** - Astro's official documentation theme
 - **Content Collections** - Type-safe content management with Astro's collection system
+- **Custom Content Loaders** - Dynamic loading from governance submodule
+- **Dynamic Routing** - Manual route generation for full control
 - **Sharp** - Optimized image processing
+
+### Content Loader Architecture
+
+The site implements a custom content loading architecture that separates governance content from site pages while maintaining Starlight's UI aesthetics.
+
+#### Collections
+
+Four content collections are defined in `src/content.config.ts`:
+
+1. **`docs`** - Site pages (landing page, index pages) using Starlight's loader
+2. **`agreements`** - Governance agreements loaded from `src/content/governance/agreements/`
+3. **`policies`** - Governance policies loaded from `src/content/governance/policies/`
+4. **`proposals`** - Governance proposals loaded from `src/content/governance/proposals/`
+
+#### Content Loading
+
+Governance collections use Astro's `glob()` loader to dynamically load markdown files from the submodule:
+
+```typescript
+agreements: defineCollection({
+  loader: glob({
+    pattern: ['**/*.md', '!index.md', '!readme.md', '!README.md', '!**/index.md', '!**/readme.md', '!**/README.md'],
+    base: './src/content/governance/agreements'
+  }),
+  schema: governanceSchema,
+})
+```
+
+**Key features:**
+- **Negation patterns** exclude `index.md` and `readme.md` files (these don't match governance schema)
+- **Nested directory support** preserves folder structure in URLs
+- **Schema validation** ensures all content has required frontmatter fields
+- **Type safety** with Zod schema for governance documents
+
+#### Schema
+
+The `governanceSchema` defines required and optional frontmatter:
+
+```typescript
+{
+  title: string (optional - extracted from H1 if missing),
+  description: string (required),
+  status: 'draft' | 'active' | 'deprecated' (optional),
+  lastUpdated: date (optional),
+  tags: string[] (optional),
+  relatedDocs: string[] (optional)
+}
+```
+
+#### Dynamic Routing
+
+Unlike Starlight's automatic routing, this implementation uses **manual dynamic routes** for full control:
+
+- **`src/pages/agreements/[...slug].astro`** - Renders all agreements
+- **`src/pages/policies/[...slug].astro`** - Renders all policies
+- **`src/pages/proposals/[...slug].astro`** - Renders all proposals
+
+Each route file:
+1. Uses `getStaticPaths()` to query its collection
+2. Calls `render()` from `astro:content` to process markdown
+3. Extracts title from H1 if not in frontmatter
+4. Wraps content in `<StarlightPage>` component for consistent UI
+
+**Example URL mapping:**
+- File: `src/content/governance/policies/operations/authority-delegation.md`
+- URL: `/policies/operations/authority-delegation/`
+
+#### Index Pages
+
+Collection index pages (`/agreements/`, `/policies/`, `/proposals/`) are MDX templates in `src/content/docs/` that use the `<CollectionList>` component:
+
+```mdx
+---
+title: Agreements
+description: Core agreements and foundational documents
+---
+
+import CollectionList from '../../../components/CollectionList.astro';
+
+<CollectionList collection="agreements" />
+```
+
+The `CollectionList` component queries the collection and renders grouped, linked entries.
+
+#### Why This Architecture?
+
+This approach provides:
+
+- **Single source of truth** - Content lives in governance repository
+- **Full routing control** - Not constrained by Starlight conventions
+- **Starlight UI benefits** - Uses Starlight for aesthetics without its routing limitations
+- **Type safety** - Schema validation catches content errors
+- **Maintainability** - Clear separation between site code and governance content
+- **Flexibility** - Easy to add new collections or modify routing logic
 
 See [CLAUDE.md](./CLAUDE.md) for detailed architectural guidance.
 

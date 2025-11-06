@@ -4,15 +4,10 @@
  *
  * Overrides Starlight's default Sidebar to dynamically generate navigation
  * from governance content collections (agreements, policies, proposals).
- *
- * This component:
- * - Queries all three governance collections
- * - Builds hierarchical navigation tree preserving subdirectory structure
- * - Maintains visual hierarchy (main sections prominent, reference de-emphasized)
- * - Works with dynamic routing architecture
  */
-import type { Props } from '@astrojs/starlight/props';
 import { getCollection } from 'astro:content';
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
+import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 
 // Get all entries from governance collections
 const agreements = await getCollection('agreements');
@@ -21,10 +16,8 @@ const proposals = await getCollection('proposals');
 
 /**
  * Build hierarchical navigation structure from collection entries
- * Groups entries by subdirectory (e.g., dao/, operations/, metagovernance/)
  */
 function buildNavTree(entries: any[], collectionName: string) {
-	// Group entries by their top-level directory
 	const grouped = entries.reduce((acc, entry) => {
 		const parts = entry.id.split('/');
 		const groupKey = parts.length > 1 ? parts[0] : '_root';
@@ -33,10 +26,8 @@ function buildNavTree(entries: any[], collectionName: string) {
 		return acc;
 	}, {} as Record<string, typeof entries>);
 
-	// Sort entries within each group
 	Object.keys(grouped).forEach(key => {
 		grouped[key].sort((a, b) => {
-			// Extract title for sorting
 			const titleA = a.data.title || a.id;
 			const titleB = b.data.title || b.id;
 			return titleA.localeCompare(titleB);
@@ -50,7 +41,6 @@ const agreementsTree = buildNavTree(agreements, 'agreements');
 const policiesTree = buildNavTree(policies, 'policies');
 const proposalsTree = buildNavTree(proposals, 'proposals');
 
-// Format group names for display
 function formatGroupName(key: string): string {
 	if (key === '_root') return '';
 	return key
@@ -59,324 +49,210 @@ function formatGroupName(key: string): string {
 		.join(' ');
 }
 
-// Get current page for active link highlighting
 const currentPath = Astro.url.pathname;
 ---
 
-<div class="sidebar-content sl-flex">
-	<nav aria-label="Main navigation">
-		<ul class="top-level">
-			<!-- Agreements Section -->
-			<li>
-				<details open>
-					<summary class="section-header">
-						<span>Agreements</span>
-					</summary>
-					<ul class="section-content">
-						<li>
-							<a href="/agreements/" class:list={[{ active: currentPath === '/agreements/' }]}>
-								Overview
-							</a>
-						</li>
-						{Object.entries(agreementsTree).map(([groupKey, items]) => (
-							groupKey === '_root' ? (
-								items.map(entry => (
-									<li>
-										<a
-											href={`/agreements/${entry.id}/`}
-											class:list={[{ active: currentPath === `/agreements/${entry.id}/` }]}
-										>
-											{entry.data.title || entry.id}
-										</a>
-									</li>
-								))
-							) : (
+<SidebarPersister>
+	<ul class="top-level">
+		<!-- Agreements Section -->
+		<li>
+			<details open>
+				<summary>
+					<div class="large">Agreements</div>
+				</summary>
+				<ul>
+					<li>
+						<a href="/agreements/" aria-current={currentPath === '/agreements/' ? 'page' : 'false'}>
+							<span>Overview</span>
+						</a>
+					</li>
+					{Object.entries(agreementsTree).map(([groupKey, items]) => (
+						groupKey === '_root' ? (
+							items.map(entry => (
 								<li>
-									<details open>
-										<summary class="group-header">{formatGroupName(groupKey)}</summary>
-										<ul class="group-content">
-											{items.map(entry => (
-												<li>
-													<a
-														href={`/agreements/${entry.id}/`}
-														class:list={[{ active: currentPath === `/agreements/${entry.id}/` }]}
-													>
-														{entry.data.title || entry.id.split('/').pop()}
-													</a>
-												</li>
-											))}
-										</ul>
-									</details>
+									<a
+										href={`/agreements/${entry.id}/`}
+										aria-current={currentPath === `/agreements/${entry.id}/` ? 'page' : 'false'}
+									>
+										<span>{entry.data.title || entry.id}</span>
+									</a>
 								</li>
-							)
-						))}
-					</ul>
-				</details>
-			</li>
+							))
+						) : (
+							<li>
+								<details open>
+									<summary>
+										<div>{formatGroupName(groupKey)}</div>
+									</summary>
+									<ul>
+										{items.map(entry => (
+											<li>
+												<a
+													href={`/agreements/${entry.id}/`}
+													aria-current={currentPath === `/agreements/${entry.id}/` ? 'page' : 'false'}
+												>
+													<span>{entry.data.title || entry.id.split('/').pop()}</span>
+												</a>
+											</li>
+										))}
+									</ul>
+								</details>
+							</li>
+						)
+					))}
+				</ul>
+			</details>
+		</li>
 
-			<!-- Policies Section -->
-			<li>
-				<details open>
-					<summary class="section-header">
-						<span>Policies</span>
-					</summary>
-					<ul class="section-content">
-						<li>
-							<a href="/policies/" class:list={[{ active: currentPath === '/policies/' }]}>
-								Overview
-							</a>
-						</li>
-						{Object.entries(policiesTree).map(([groupKey, items]) => (
-							groupKey === '_root' ? (
-								items.map(entry => (
-									<li>
-										<a
-											href={`/policies/${entry.id}/`}
-											class:list={[{ active: currentPath === `/policies/${entry.id}/` }]}
-										>
-											{entry.data.title || entry.id}
-										</a>
-									</li>
-								))
-							) : (
+		<!-- Policies Section -->
+		<li>
+			<details open>
+				<summary>
+					<div class="large">Policies</div>
+				</summary>
+				<ul>
+					<li>
+						<a href="/policies/" aria-current={currentPath === '/policies/' ? 'page' : 'false'}>
+							<span>Overview</span>
+						</a>
+					</li>
+					{Object.entries(policiesTree).map(([groupKey, items]) => (
+						groupKey === '_root' ? (
+							items.map(entry => (
 								<li>
-									<details open>
-										<summary class="group-header">{formatGroupName(groupKey)}</summary>
-										<ul class="group-content">
-											{items.map(entry => (
-												<li>
-													<a
-														href={`/policies/${entry.id}/`}
-														class:list={[{ active: currentPath === `/policies/${entry.id}/` }]}
-													>
-														{entry.data.title || entry.id.split('/').pop()}
-													</a>
-												</li>
-											))}
-										</ul>
-									</details>
+									<a
+										href={`/policies/${entry.id}/`}
+										aria-current={currentPath === `/policies/${entry.id}/` ? 'page' : 'false'}
+									>
+										<span>{entry.data.title || entry.id}</span>
+									</a>
 								</li>
-							)
-						))}
-					</ul>
-				</details>
-			</li>
+							))
+						) : (
+							<li>
+								<details open>
+									<summary>
+										<div>{formatGroupName(groupKey)}</div>
+									</summary>
+									<ul>
+										{items.map(entry => (
+											<li>
+												<a
+													href={`/policies/${entry.id}/`}
+													aria-current={currentPath === `/policies/${entry.id}/` ? 'page' : 'false'}
+												>
+													<span>{entry.data.title || entry.id.split('/').pop()}</span>
+												</a>
+											</li>
+										))}
+									</ul>
+								</details>
+							</li>
+						)
+					))}
+				</ul>
+			</details>
+		</li>
 
-			<!-- Proposals Section -->
-			<li>
-				<details open>
-					<summary class="section-header">
-						<span>Proposals</span>
-					</summary>
-					<ul class="section-content">
-						<li>
-							<a href="/proposals/" class:list={[{ active: currentPath === '/proposals/' }]}>
-								Overview
-							</a>
-						</li>
-						{Object.entries(proposalsTree).map(([groupKey, items]) => (
-							groupKey === '_root' ? (
-								items.map(entry => (
-									<li>
-										<a
-											href={`/proposals/${entry.id}/`}
-											class:list={[{ active: currentPath === `/proposals/${entry.id}/` }]}
-										>
-											{entry.data.title || entry.id}
-										</a>
-									</li>
-								))
-							) : (
+		<!-- Proposals Section -->
+		<li>
+			<details open>
+				<summary>
+					<div class="large">Proposals</div>
+				</summary>
+				<ul>
+					<li>
+						<a href="/proposals/" aria-current={currentPath === '/proposals/' ? 'page' : 'false'}>
+							<span>Overview</span>
+						</a>
+					</li>
+					{Object.entries(proposalsTree).map(([groupKey, items]) => (
+						groupKey === '_root' ? (
+							items.map(entry => (
 								<li>
-									<details open>
-										<summary class="group-header">{formatGroupName(groupKey)}</summary>
-										<ul class="group-content">
-											{items.map(entry => (
-												<li>
-													<a
-														href={`/proposals/${entry.id}/`}
-														class:list={[{ active: currentPath === `/proposals/${entry.id}/` }]}
-													>
-														{entry.data.title || entry.id.split('/').pop()}
-													</a>
-												</li>
-											))}
-										</ul>
-									</details>
+									<a
+										href={`/proposals/${entry.id}/`}
+										aria-current={currentPath === `/proposals/${entry.id}/` ? 'page' : 'false'}
+									>
+										<span>{entry.data.title || entry.id}</span>
+									</a>
 								</li>
-							)
-						))}
-					</ul>
-				</details>
-			</li>
+							))
+						) : (
+							<li>
+								<details open>
+									<summary>
+										<div>{formatGroupName(groupKey)}</div>
+									</summary>
+									<ul>
+										{items.map(entry => (
+											<li>
+												<a
+													href={`/proposals/${entry.id}/`}
+													aria-current={currentPath === `/proposals/${entry.id}/` ? 'page' : 'false'}
+												>
+													<span>{entry.data.title || entry.id.split('/').pop()}</span>
+												</a>
+											</li>
+										))}
+									</ul>
+								</details>
+							</li>
+						)
+					))}
+				</ul>
+			</details>
+		</li>
 
-			<!-- Reference Section (de-emphasized) -->
-			<li class="reference-section">
-				<details>
-					<summary class="section-header reference-header">
-						<span>Reference</span>
-					</summary>
-					<ul class="section-content">
-						<li>
-							<a href="/governance/" class:list={[{ active: currentPath === '/governance/' }]}>
-								Governance Framework
-							</a>
-						</li>
-						<li>
-							<a href="/code-of-conduct/" class:list={[{ active: currentPath === '/code-of-conduct/' }]}>
-								Code of Conduct
-							</a>
-						</li>
-						<li>
-							<a href="/contributing/" class:list={[{ active: currentPath === '/contributing/' }]}>
-								Contributing
-							</a>
-						</li>
-					</ul>
-				</details>
-			</li>
-		</ul>
-	</nav>
+		<!-- Reference Section (de-emphasized) -->
+		<li class="reference-section">
+			<details>
+				<summary>
+					<div class="large">Reference</div>
+				</summary>
+				<ul>
+					<li>
+						<a href="/governance/" aria-current={currentPath === '/governance/' ? 'page' : 'false'}>
+							<span>Governance Framework</span>
+						</a>
+					</li>
+					<li>
+						<a href="/code-of-conduct/" aria-current={currentPath === '/code-of-conduct/' ? 'page' : 'false'}>
+							<span>Code of Conduct</span>
+						</a>
+					</li>
+					<li>
+						<a href="/contributing/" aria-current={currentPath === '/contributing/' ? 'page' : 'false'}>
+							<span>Contributing</span>
+						</a>
+					</li>
+				</ul>
+			</details>
+		</li>
+	</ul>
+</SidebarPersister>
+
+<div class="md:sl-hidden">
+	<MobileMenuFooter />
 </div>
 
 <style>
-	/* Base sidebar styling matching Starlight's appearance */
-	.sidebar-content {
-		height: 100%;
-		padding: 1rem;
-		overflow-y: auto;
-	}
-
-	nav {
-		width: 100%;
-	}
-
-	ul {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-	}
-
-	.top-level {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	/* Section headers (Agreements, Policies, Proposals) */
-	.section-header {
-		font-weight: 600;
-		font-size: 1rem;
-		padding: 0.5rem 0.75rem;
-		cursor: pointer;
-		user-select: none;
-		border-radius: 0.375rem;
-		color: var(--sl-color-white);
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.section-header:hover {
-		background: var(--sl-color-gray-6);
-	}
-
-	details > summary {
-		list-style: none;
-	}
-
-	details > summary::before {
-		content: '▶';
-		display: inline-block;
-		margin-right: 0.5rem;
-		transition: transform 0.2s;
-		font-size: 0.75rem;
-	}
-
-	details[open] > summary::before {
-		transform: rotate(90deg);
-	}
-
-	/* Section content */
-	.section-content {
-		padding-left: 1rem;
-		margin-top: 0.25rem;
-	}
-
-	/* Group headers (subdirectories) */
-	.group-header {
-		font-weight: 500;
-		font-size: 0.9rem;
-		padding: 0.375rem 0.75rem;
-		cursor: pointer;
-		user-select: none;
-		border-radius: 0.375rem;
-		color: var(--sl-color-gray-2);
-		display: flex;
-		align-items: center;
-	}
-
-	.group-header:hover {
-		background: var(--sl-color-gray-6);
-		color: var(--sl-color-white);
-	}
-
-	/* Group content */
-	.group-content {
-		padding-left: 0.75rem;
-		margin-top: 0.25rem;
-	}
-
-	/* Links */
-	a {
-		display: block;
-		padding: 0.375rem 0.75rem;
-		color: var(--sl-color-gray-2);
-		text-decoration: none;
-		border-radius: 0.375rem;
-		font-size: 0.875rem;
-		line-height: 1.5;
-		transition: all 0.2s;
-	}
-
-	a:hover {
-		background: var(--sl-color-gray-6);
-		color: var(--sl-color-white);
-	}
-
-	a.active {
-		background: var(--sl-color-accent);
-		color: var(--sl-color-black);
-		font-weight: 600;
-	}
-
-	/* Visual separator and de-emphasized reference section */
 	.reference-section {
 		margin-top: 2rem;
 		padding-top: 1.5rem;
 		border-top: 1px solid var(--sl-color-gray-5);
 	}
 
-	.reference-header {
+	.reference-section summary {
 		opacity: 0.7;
-		font-size: 0.9rem;
 	}
 
 	.reference-section a {
 		opacity: 0.8;
-		font-size: 0.875rem;
 	}
 
-	.reference-section a:hover,
-	.reference-header:hover {
+	.reference-section summary:hover,
+	.reference-section a:hover {
 		opacity: 1;
-	}
-
-	/* Responsive adjustments */
-	@media (max-width: 72rem) {
-		.reference-section {
-			margin-top: 1.5rem;
-			padding-top: 1rem;
-		}
 	}
 </style>

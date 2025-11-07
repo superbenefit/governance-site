@@ -190,22 +190,77 @@ code {
    Using unlayered CSS for higher specificity than @layer starlight.core
    ======================================== */
 
-/* Search Button - Remove border artifacts at larger screens */
+/* Search Modal Dialog - Fix background (Starlight uses gray-6 which we remapped) */
+dialog {
+	background-color: var(--sb-surface);
+	border: 1px solid var(--sb-border);
+}
+
+.dialog-frame {
+	background-color: var(--sb-surface);
+}
+
+#starlight__search {
+	background-color: var(--sb-surface);
+}
+
+#starlight__search .pagefind-ui__result-title,
+#starlight__search .pagefind-ui__result-nested {
+	background-color: var(--sb-light);
+}
+
+/* Search Button - Remove border and fix kbd styling */
+button[data-open-modal] {
+	border: none;
+	background-color: transparent;
+}
+
+/* Fix kbd (keyboard shortcut) styling - remove background boxes at small screens */
+button[data-open-modal] kbd {
+	background-color: transparent;
+	border: none;
+	box-shadow: none;
+	padding: 0;
+}
+
+button[data-open-modal] kbd kbd {
+	background-color: transparent;
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+
 @media (min-width: 50rem) {
 	button[data-open-modal] {
-		border: none;
-		background: transparent;
+		border: 1px solid var(--sl-color-gray-5);
+		background-color: var(--sl-color-black);
+		padding-inline-start: 0.75rem;
+		padding-inline-end: 0.5rem;
 	}
 
-	button[data-open-modal] span {
+	/* Show kbd shortcuts at larger screens with proper styling */
+	button[data-open-modal] kbd {
+		background-color: var(--sb-cream);
+		border: 1px solid var(--sb-border);
+		border-radius: 0.25rem;
+		padding-inline: 0.375rem;
+		color: var(--sb-darkgray);
+	}
+
+	button[data-open-modal] kbd kbd {
+		background-color: transparent;
 		border: none;
-		background: transparent;
+		padding: 0;
 	}
 }
 
 /* Theme Selector - Increase spacing between icon and text */
 starlight-theme-select label {
 	gap: 0.75rem;
+}
+
+starlight-theme-select .label-icon {
+	margin-inline-end: 0.25rem;
 }
 
 /* Right Sidebar (Table of Contents) - Make narrower to match left sidebar */
@@ -375,9 +430,19 @@ starlight-theme-select label {
 		background-color: var(--sb-surface);
 	}
 
-	/* Search Modal */
-	.search-modal,
-	[data-open-modal] {
+	/* Search Modal - Fix dialog background */
+	dialog {
+		background-color: var(--sb-light-alt);
+		border-color: var(--sb-border);
+	}
+
+	/* Search modal dialog frame */
+	.dialog-frame {
+		background-color: var(--sb-light-alt);
+	}
+
+	/* Search container inside modal */
+	.search-container {
 		background-color: var(--sb-light-alt);
 	}
 
@@ -393,6 +458,17 @@ starlight-theme-select label {
 	input[type="search"]::placeholder {
 		color: var(--sb-gray);
 		opacity: 1;
+	}
+
+	/* Pagefind search results */
+	#starlight__search {
+		background-color: var(--sb-light-alt);
+	}
+
+	/* Fix search result backgrounds */
+	#starlight__search .pagefind-ui__result-title,
+	#starlight__search .pagefind-ui__result-nested {
+		background-color: var(--sb-surface);
 	}
 
 	/* Dropdown menus */
@@ -500,12 +576,16 @@ starlight-theme-select label {
 		border-color: var(--sb-border);
 	}
 
-	/* Keyboard shortcut hint */
-	.search kbd,
+	/* Keyboard shortcut hint in dark mode */
 	button[data-open-modal] kbd {
-		background-color: var(--sb-light-alt);
-		border-color: var(--sb-border);
+		background-color: var(--sb-surface);
+		border: 1px solid var(--sb-border);
 		color: var(--sb-gray);
+	}
+
+	button[data-open-modal] kbd kbd {
+		background-color: transparent;
+		border: none;
 	}
 }
 

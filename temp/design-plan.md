@@ -605,4 +605,21 @@ public/og-image.png                # Social sharing image (optional)
 
 ---
 
-**Status**: Design system validated. Ready to begin implementation once WS3 is merged to main.
+**Status**: Design system validated. Implementing Phase 1-3, 5-6 now. Phase 4 (Navigation) awaiting WS3 completion.
+
+## Phased Implementation Strategy
+
+**Phase 1: Initial Implementation (Now)**
+- Phases 2, 3, 5, 6 (skip fonts for now, use Starlight defaults)
+- Create design-tokens.css with color palette
+- Map colors to Starlight variables
+- Enhance CollectionList component
+- Enhance landing page and index pages
+- Skip custom fonts (use Starlight defaults)
+- Skip logo/assets (will request specs when needed)
+
+**Phase 2: After WS3 Merge**
+- Phase 4 (Navigation & Sidebar styling)
+- Integrate with WS3's custom.css
+- Apply brand colors to navigation
+- Final polish and testing

@@ -4,32 +4,41 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { readFile } from 'node:fs/promises';
 import { Marked } from 'marked';
 
-// Read and parse the index.md file from the governance submodule
+// Try to read and parse the index.md file from the governance submodule
+// Fall back to default content if the file doesn't exist (e.g., submodule not initialized)
 const indexPath = './src/content/governance/policies/index.md';
-const indexContent = await readFile(indexPath, 'utf-8');
-
-// Extract frontmatter
-const frontmatterMatch = indexContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
 let description = 'Practical coordination mechanisms across different operational domains';
-let markdownContent = indexContent;
+let title = 'Policies';
+let renderedContent = '<p>Operational policies for coordination across different domains.</p>';
 
-if (frontmatterMatch) {
-	const frontmatter = frontmatterMatch[1];
-	markdownContent = frontmatterMatch[2];
-	const descMatch = frontmatter.match(/description:\s*(.+)/);
-	if (descMatch) {
-		description = descMatch[1];
+try {
+	const indexContent = await readFile(indexPath, 'utf-8');
+
+	// Extract frontmatter
+	const frontmatterMatch = indexContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+	let markdownContent = indexContent;
+
+	if (frontmatterMatch) {
+		const frontmatter = frontmatterMatch[1];
+		markdownContent = frontmatterMatch[2];
+		const descMatch = frontmatter.match(/description:\s*(.+)/);
+		if (descMatch) {
+			description = descMatch[1];
+		}
 	}
+
+	// Get title from first H1 and remove it from content
+	const titleMatch = markdownContent.match(/^#\s+(.+)$/m);
+	title = titleMatch ? titleMatch[1] : 'Policies';
+	const contentWithoutTitle = markdownContent.replace(/^#\s+.+$/m, '').trim();
+
+	// Render markdown to HTML
+	const marked = new Marked();
+	renderedContent = await marked.parse(contentWithoutTitle);
+} catch (error) {
+	// Submodule not initialized or file doesn't exist - use defaults
+	console.log('Using default policies index content');
 }
-
-// Get title from first H1 and remove it from content
-const titleMatch = markdownContent.match(/^#\s+(.+)$/m);
-const title = titleMatch ? titleMatch[1] : 'Policies';
-const contentWithoutTitle = markdownContent.replace(/^#\s+.+$/m, '').trim();
-
-// Render markdown to HTML
-const marked = new Marked();
-const renderedContent = await marked.parse(contentWithoutTitle);
 
 // Get all policies and extract titles
 const policies = await getCollection('policies');

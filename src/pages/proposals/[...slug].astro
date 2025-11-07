@@ -6,10 +6,14 @@
  * Uses Starlight components for consistent UI/aesthetics.
  *
  * Routes generated:
- * - /proposals/index/ (from proposals/index.md)
- * - /proposals/* (from proposals/*.md)
+ * - /proposals/* (Snapshot proposals from superbenefit.eth)
+ *
+ * Enhanced to display Snapshot-specific voting metadata including:
+ * - Voting results and winning choice
+ * - Proposal author and dates
+ * - Participation metrics
  */
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
 export async function getStaticPaths() {
@@ -21,13 +25,292 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content, headings } = await render(entry);
 
-// Use title from frontmatter or extract from first H1
-const title = entry.data.title || headings.find(h => h.depth === 1)?.text || 'Untitled';
+// Note: We're storing HTML directly, so we don't need to render markdown
+// Use title from frontmatter
+const title = entry.data.title || 'Untitled';
 const frontmatter = { ...entry.data, title };
+
+// Helper function to format dates
+const formatDate = (date: Date | undefined) => {
+	if (!date) return 'N/A';
+	return new Intl.DateTimeFormat('en-US', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	}).format(date);
+};
+
+// Helper function to shorten Ethereum addresses
+const shortenAddress = (address: string | undefined) => {
+	if (!address) return 'Unknown';
+	return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
 ---
 
-<StarlightPage {frontmatter} {headings}>
-	<Content />
+<StarlightPage {frontmatter} headings={[]}>
+	{/* Proposal body content (converted from markdown to HTML) */}
+	{entry.body && (
+		<div class="sl-markdown-content" set:html={entry.body} />
+	)}
+
+	{!entry.body && (
+		<div style="
+			padding: 2rem;
+			background: var(--sl-color-gray-6, #23262f);
+			border-radius: 0.5rem;
+			text-align: center;
+			color: var(--sl-color-gray-3, #888c96);
+			margin-bottom: 2rem;
+		">
+			<p>No proposal content available.</p>
+			<p style="font-size: 0.875rem; margin-top: 0.5rem;">
+				This proposal may not have included a description, or the content could not be loaded.
+			</p>
+		</div>
+	)}
+
+	{entry.data.snapshotId && (
+		<div class="snapshot-metadata" style="
+			background: var(--sl-color-gray-6, #23262f);
+			border: 1px solid var(--sl-color-gray-5, #333741);
+			border-radius: 0.5rem;
+			padding: 1.5rem;
+			margin-top: 2rem;
+		">
+			<div style="
+				background: var(--sl-color-accent-high, #0ea5e9);
+				color: var(--sl-color-black, #000);
+				padding: 0.75rem 1rem;
+				border-radius: 0.375rem;
+				margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+			">
+				<div style="
+					display: flex;
+					justify-content: space-between;
+					align-items: flex-start;
+					gap: 1rem;
+					flex-wrap: wrap;
+				">
+					<h2 style="margin: 0; font-size: 1.25rem; font-weight: 700; min-width: 0; flex: 1 1 auto;">
+						Voting Results
+					</h2>
+					{entry.data.status && (
+						<span style="
+							font-size: 0.875rem;
+							font-weight: 600;
+							padding: 0.25rem 0.75rem;
+							background: var(--sl-color-black, #000);
+							color: var(--sl-color-white, #fff);
+							border-radius: 0.25rem;
+							text-transform: uppercase;
+							white-space: nowrap;
+							flex: 0 0 auto;
+						">
+							{entry.data.status}
+						</span>
+					)}
+				</div>
+			</div>
+
+			<div class="metadata-grid" style="
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				gap: 1.5rem;
+				margin-bottom: 1.5rem;
+			">
+				{entry.data.winningChoice && (
+					<div>
+						<strong style="
+							display: block;
+							color: var(--sl-color-gray-3, #888c96);
+							font-size: 0.875rem;
+							margin-bottom: 0.25rem;
+							text-transform: uppercase;
+							letter-spacing: 0.05em;
+						">Result</strong>
+						<div style="
+							font-size: 1.25rem;
+							color: var(--sl-color-white, #fff);
+							font-weight: 700;
+						">
+							{entry.data.winningChoice}
+						</div>
+					</div>
+				)}
+
+				{entry.data.percentageVoted !== undefined && (
+					<div>
+						<strong style="
+							display: block;
+							color: var(--sl-color-gray-3, #888c96);
+							font-size: 0.875rem;
+							margin-bottom: 0.25rem;
+							text-transform: uppercase;
+							letter-spacing: 0.05em;
+						">Winning Vote</strong>
+						<div style="
+							font-size: 1.25rem;
+							color: var(--sl-color-accent, #0ea5e9);
+							font-weight: 700;
+						">
+							{entry.data.percentageVoted.toFixed(2)}%
+						</div>
+					</div>
+				)}
+
+				{entry.data.votes !== undefined && (
+					<div>
+						<strong style="
+							display: block;
+							color: var(--sl-color-gray-3, #888c96);
+							font-size: 0.875rem;
+							margin-bottom: 0.25rem;
+							text-transform: uppercase;
+							letter-spacing: 0.05em;
+						">Total Voters</strong>
+						<div style="
+							font-size: 1.25rem;
+							color: var(--sl-color-white, #fff);
+							font-weight: 700;
+						">
+							{entry.data.votes}
+						</div>
+					</div>
+				)}
+			</div>
+
+			{entry.data.choices && entry.data.scores && (
+				<details style="margin-top: 1.5rem;">
+					<summary style="
+						cursor: pointer;
+						color: var(--sl-color-white, #fff);
+						font-weight: 600;
+						padding: 0.75rem;
+						background: var(--sl-color-gray-5, #333741);
+						border-radius: 0.375rem;
+						user-select: none;
+					">
+						📊 View All Choices & Scores
+					</summary>
+					<div style="
+						margin-top: 1rem;
+						background: var(--sl-color-gray-7, #17181c);
+						border-radius: 0.375rem;
+						padding: 1rem;
+					">
+						{entry.data.choices.map((choice: string, index: number) => (
+							<div style="
+								display: flex;
+								justify-content: space-between;
+								padding: 0.75rem;
+								border-bottom: 1px solid var(--sl-color-gray-6, #23262f);
+								align-items: center;
+							">
+								<span style="
+									color: var(--sl-color-white, #fff);
+									font-weight: 500;
+								">{choice}</span>
+								<span style="
+									color: var(--sl-color-gray-2, #b4b7be);
+									font-family: monospace;
+									font-size: 0.875rem;
+								">
+									{entry.data.scores![index]?.toFixed(2) || 0}
+									<span style="color: var(--sl-color-gray-3, #888c96);">
+										{' '}({entry.data.scores_total ? ((entry.data.scores![index] / entry.data.scores_total) * 100).toFixed(2) : 0}%)
+									</span>
+								</span>
+							</div>
+						))}
+					</div>
+				</details>
+			)}
+
+			<div style="
+				margin-top: 1.5rem;
+				padding-top: 1.5rem;
+				border-top: 2px solid var(--sl-color-gray-5, #333741);
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				gap: 1.25rem;
+				font-size: 0.875rem;
+			">
+				{entry.data.author && (
+					<div>
+						<strong style="
+							display: block;
+							color: var(--sl-color-gray-3, #888c96);
+							margin-bottom: 0.25rem;
+							text-transform: uppercase;
+							letter-spacing: 0.05em;
+						">Author</strong>
+						<div style="
+							color: var(--sl-color-white, #fff);
+							font-family: monospace;
+							font-size: 0.875rem;
+						">
+							{shortenAddress(entry.data.author)}
+						</div>
+					</div>
+				)}
+
+				{entry.data.startDate && (
+					<div>
+						<strong style="
+							display: block;
+							color: var(--sl-color-gray-3, #888c96);
+							margin-bottom: 0.25rem;
+							text-transform: uppercase;
+							letter-spacing: 0.05em;
+						">Start Date</strong>
+						<div style="color: var(--sl-color-white, #fff);">
+							{formatDate(entry.data.startDate)}
+						</div>
+					</div>
+				)}
+
+				{entry.data.endDate && (
+					<div>
+						<strong style="
+							display: block;
+							color: var(--sl-color-gray-3, #888c96);
+							margin-bottom: 0.25rem;
+							text-transform: uppercase;
+							letter-spacing: 0.05em;
+						">End Date</strong>
+						<div style="color: var(--sl-color-white, #fff);">
+							{formatDate(entry.data.endDate)}
+						</div>
+					</div>
+				)}
+
+				{entry.data.snapshotId && (
+					<div>
+						<strong style="
+							display: block;
+							color: var(--sl-color-gray-3, #888c96);
+							margin-bottom: 0.25rem;
+							text-transform: uppercase;
+							letter-spacing: 0.05em;
+						">View Original</strong>
+						<div>
+							<a
+								href={`https://snapshot.org/#/superbenefit.eth/proposal/${entry.data.snapshotId}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								style="
+									color: var(--sl-color-accent, #0ea5e9);
+									text-decoration: none;
+									font-weight: 600;
+								"
+							>
+								Snapshot.org ↗
+							</a>
+						</div>
+					</div>
+				)}
+			</div>
+		</div>
+	)}
 </StarlightPage>

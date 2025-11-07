@@ -4,32 +4,41 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { readFile } from 'node:fs/promises';
 import { Marked } from 'marked';
 
-// Read and parse the index.md file from the governance submodule
+// Try to read and parse the index.md file from the governance submodule
+// Fall back to default content if the file doesn't exist (e.g., submodule not initialized)
 const indexPath = './src/content/governance/proposals/index.md';
-const indexContent = await readFile(indexPath, 'utf-8');
-
-// Extract frontmatter
-const frontmatterMatch = indexContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
 let description = 'Institutional memory archive preserving decision-making processes and deliberative context';
-let markdownContent = indexContent;
+let title = 'Proposals';
+let renderedContent = '<p>Historical record of governance proposals and their outcomes.</p>';
 
-if (frontmatterMatch) {
-	const frontmatter = frontmatterMatch[1];
-	markdownContent = frontmatterMatch[2];
-	const descMatch = frontmatter.match(/description:\s*(.+)/);
-	if (descMatch) {
-		description = descMatch[1];
+try {
+	const indexContent = await readFile(indexPath, 'utf-8');
+
+	// Extract frontmatter
+	const frontmatterMatch = indexContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+	let markdownContent = indexContent;
+
+	if (frontmatterMatch) {
+		const frontmatter = frontmatterMatch[1];
+		markdownContent = frontmatterMatch[2];
+		const descMatch = frontmatter.match(/description:\s*(.+)/);
+		if (descMatch) {
+			description = descMatch[1];
+		}
 	}
+
+	// Get title from first H1 and remove it from content
+	const titleMatch = markdownContent.match(/^#\s+(.+)$/m);
+	title = titleMatch ? titleMatch[1] : 'Proposals';
+	const contentWithoutTitle = markdownContent.replace(/^#\s+.+$/m, '').trim();
+
+	// Render markdown to HTML
+	const marked = new Marked();
+	renderedContent = await marked.parse(contentWithoutTitle);
+} catch (error) {
+	// Submodule not initialized or file doesn't exist - use defaults
+	console.log('Using default proposal index content');
 }
-
-// Get title from first H1 and remove it from content
-const titleMatch = markdownContent.match(/^#\s+(.+)$/m);
-const title = titleMatch ? titleMatch[1] : 'Proposals';
-const contentWithoutTitle = markdownContent.replace(/^#\s+.+$/m, '').trim();
-
-// Render markdown to HTML
-const marked = new Marked();
-const renderedContent = await marked.parse(contentWithoutTitle);
 
 // Get all proposals and extract titles
 const proposals = await getCollection('proposals');
@@ -43,11 +52,17 @@ const proposalsWithTitles = await Promise.all(
 	})
 );
 
-// Sort by date if available, otherwise by title
+// Sort by endDate (most recent first) for Snapshot proposals, fall back to lastUpdated, then title
 const sortedProposals = proposalsWithTitles.sort((a, b) => {
+	// For Snapshot proposals, sort by endDate
+	if (a.data.endDate && b.data.endDate) {
+		return b.data.endDate.getTime() - a.data.endDate.getTime();
+	}
+	// Fall back to lastUpdated if available
 	if (a.data.lastUpdated && b.data.lastUpdated) {
 		return b.data.lastUpdated.getTime() - a.data.lastUpdated.getTime();
 	}
+	// Finally sort alphabetically by title
 	return a.displayTitle.localeCompare(b.displayTitle);
 });
 ---
@@ -122,6 +137,7 @@ const sortedProposals = proposalsWithTitles.sort((a, b) => {
 			text-decoration: none;
 			color: inherit;
 			display: block;
+			padding-right: 6rem; /* Reserve space for status badge */
 		}
 
 		.entry-title {
@@ -161,6 +177,16 @@ const sortedProposals = proposalsWithTitles.sort((a, b) => {
 		.status-deprecated {
 			background: var(--sl-color-gray-5);
 			color: var(--sl-color-gray-3);
+		}
+
+		.status-passed {
+			background: var(--sl-color-green-low);
+			color: var(--sl-color-green-high);
+		}
+
+		.status-rejected {
+			background: var(--sl-color-red-low);
+			color: var(--sl-color-red-high);
 		}
 	</style>
 </StarlightPage>

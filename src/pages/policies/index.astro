@@ -1,0 +1,176 @@
+---
+import { getCollection, render } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { readFile } from 'node:fs/promises';
+import { Marked } from 'marked';
+
+// Read and parse the index.md file from the governance submodule
+const indexPath = './src/content/governance/policies/index.md';
+const indexContent = await readFile(indexPath, 'utf-8');
+
+// Extract frontmatter
+const frontmatterMatch = indexContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+let description = 'Practical coordination mechanisms across different operational domains';
+let markdownContent = indexContent;
+
+if (frontmatterMatch) {
+	const frontmatter = frontmatterMatch[1];
+	markdownContent = frontmatterMatch[2];
+	const descMatch = frontmatter.match(/description:\s*(.+)/);
+	if (descMatch) {
+		description = descMatch[1];
+	}
+}
+
+// Get title from first H1 and remove it from content
+const titleMatch = markdownContent.match(/^#\s+(.+)$/m);
+const title = titleMatch ? titleMatch[1] : 'Policies';
+const contentWithoutTitle = markdownContent.replace(/^#\s+.+$/m, '').trim();
+
+// Render markdown to HTML
+const marked = new Marked();
+const renderedContent = await marked.parse(contentWithoutTitle);
+
+// Get all policies and extract titles
+const policies = await getCollection('policies');
+
+// Extract titles from each policy
+const policiesWithTitles = await Promise.all(
+	policies.map(async (policy) => {
+		const { headings } = await render(policy);
+		const displayTitle = policy.data.title || headings.find(h => h.depth === 1)?.text || policy.id;
+		return { ...policy, displayTitle };
+	})
+);
+
+// Group by first folder segment
+const groupedPolicies: Record<string, typeof policiesWithTitles> = {};
+policiesWithTitles.forEach(policy => {
+	const folder = policy.id.split('/')[0] || 'other';
+	if (!groupedPolicies[folder]) {
+		groupedPolicies[folder] = [];
+	}
+	groupedPolicies[folder].push(policy);
+});
+
+const formatFolderName = (folder: string) => {
+	return folder.charAt(0).toUpperCase() + folder.slice(1);
+};
+---
+
+<StarlightPage frontmatter={{ title, description }}>
+	<div class="sl-markdown-content">
+		<div set:html={renderedContent} />
+
+		<hr />
+
+		<h2>Browse All Policies</h2>
+		{Object.entries(groupedPolicies).sort().map(([folder, items]) => (
+			<div class="policy-group">
+				<h3 class="group-title">{formatFolderName(folder)}</h3>
+				<ul class="entry-list">
+					{items.map(policy => (
+						<li class="entry-item">
+							<a href={`/policies/${policy.id}/`} class="entry-link">
+								<strong class="entry-title">{policy.displayTitle}</strong>
+								{policy.data.description && (
+									<p class="entry-description">{policy.data.description}</p>
+								)}
+							</a>
+							{policy.data.status && (
+								<span class={`status-badge status-${policy.data.status}`}>
+									{policy.data.status}
+								</span>
+							)}
+						</li>
+					))}
+				</ul>
+			</div>
+		))}
+	</div>
+
+	<style>
+		hr {
+			margin: 3rem 0;
+			border: none;
+			border-top: 1px solid var(--sl-color-gray-5);
+		}
+
+		.policy-group {
+			margin-bottom: 2.5rem;
+		}
+
+		.group-title {
+			font-size: 1.5rem;
+			margin-top: 2rem;
+			margin-bottom: 1rem;
+			color: var(--sl-color-white);
+			border-bottom: 1px solid var(--sl-color-gray-5);
+			padding-bottom: 0.5rem;
+		}
+
+		.entry-list {
+			list-style: none;
+			padding: 0;
+			display: grid;
+			gap: 1rem;
+		}
+
+		.entry-item {
+			border: 1px solid var(--sl-color-gray-5);
+			border-radius: 0.5rem;
+			padding: 1rem;
+			transition: border-color 0.2s;
+			position: relative;
+		}
+
+		.entry-item:hover {
+			border-color: var(--sl-color-accent);
+		}
+
+		.entry-link {
+			text-decoration: none;
+			color: inherit;
+			display: block;
+		}
+
+		.entry-title {
+			color: var(--sl-color-white);
+			font-size: 1.1rem;
+			display: block;
+			margin-bottom: 0.5rem;
+		}
+
+		.entry-description {
+			color: var(--sl-color-gray-3);
+			margin: 0;
+			font-size: 0.9rem;
+		}
+
+		.status-badge {
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
+			font-size: 0.75rem;
+			padding: 0.25rem 0.5rem;
+			border-radius: 0.25rem;
+			text-transform: uppercase;
+			font-weight: bold;
+		}
+
+		.status-draft {
+			background: var(--sl-color-orange-low);
+			color: var(--sl-color-orange-high);
+		}
+
+		.status-active {
+			background: var(--sl-color-green-low);
+			color: var(--sl-color-green-high);
+		}
+
+		.status-deprecated {
+			background: var(--sl-color-gray-5);
+			color: var(--sl-color-gray-3);
+		}
+	</style>
+</StarlightPage>

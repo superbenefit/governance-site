@@ -95,28 +95,27 @@ All commands are run from the root of the project:
 ├── src/
 │   ├── assets/               # Images and media files
 │   ├── components/
-│   │   ├── starlight/
-│   │   │   └── Sidebar.astro     # Custom navigation sidebar (overrides Starlight)
-│   │   └── CollectionList.astro  # Component for querying/displaying collection entries
+│   │   └── starlight/
+│   │       └── Sidebar.astro     # Custom navigation sidebar (overrides Starlight)
 │   ├── content/
-│   │   ├── docs/             # Site pages (landing, indexes) - MDX
-│   │   │   ├── agreements/
-│   │   │   │   └── index.mdx    # Agreements index with CollectionList
-│   │   │   ├── policies/
-│   │   │   │   └── index.mdx    # Policies index with CollectionList
-│   │   │   └── proposals/
-│   │   │       └── index.mdx    # Proposals index with CollectionList
+│   │   ├── docs/             # Empty directory (required by Starlight)
 │   │   └── governance/       # Git submodule (governance repository)
 │   │       ├── agreements/   # Agreement markdown files
 │   │       ├── policies/     # Policy markdown files
 │   │       └── proposals/    # Proposal markdown files
-│   ├── pages/                # Dynamic route pages
+│   ├── pages/                # Route pages
+│   │   ├── index.astro       # Home/landing page
 │   │   ├── agreements/
-│   │   │   └── [...slug].astro  # Renders agreement pages
+│   │   │   ├── index.astro       # Agreements index with dynamic card list
+│   │   │   └── [...slug].astro   # Individual agreement pages
 │   │   ├── policies/
-│   │   │   └── [...slug].astro  # Renders policy pages
+│   │   │   ├── index.astro       # Policies index with dynamic card list
+│   │   │   └── [...slug].astro   # Individual policy pages
 │   │   └── proposals/
-│   │       └── [...slug].astro  # Renders proposal pages
+│   │       ├── index.astro       # Proposals index with dynamic card list
+│   │       └── [...slug].astro   # Individual proposal pages
+│   ├── styles/
+│   │   └── custom.css        # Custom CSS for navigation styling
 │   └── content.config.ts     # Content collections configuration
 ├── astro.config.mjs          # Astro and Starlight configuration
 ├── CLAUDE.md                 # AI assistant guidance
@@ -125,13 +124,15 @@ All commands are run from the root of the project:
 
 ### Working with Content
 
-Documentation pages are written in Markdown (`.md`) or MDX (`.mdx`) format and stored in `src/content/docs/`. Each file is automatically exposed as a route based on its file name.
+Governance documentation is written in Markdown (`.md`) format and managed in the separate [governance repository](https://github.com/superbenefit/governance).
 
-To add or update documentation:
-1. Edit files in `src/content/docs/` or sync content from the [governance repository](https://github.com/superbenefit/governance)
-2. Include required frontmatter: `title` and `description`
-3. Update sidebar configuration in `astro.config.mjs` if needed
+To add or update governance content:
+1. Make changes in the governance repository
+2. Update the submodule: `git submodule update --remote src/content/governance`
+3. Commit the submodule reference update
 4. Test locally with `npm run dev`
+
+The custom navigation sidebar automatically reflects the governance content structure.
 
 ## Architecture
 
@@ -149,12 +150,11 @@ The site implements a custom content loading architecture that separates governa
 
 #### Collections
 
-Four content collections are defined in `src/content.config.ts`:
+Three governance content collections are defined in `src/content.config.ts`:
 
-1. **`docs`** - Site pages (landing page, index pages) using Starlight's loader
-2. **`agreements`** - Governance agreements loaded from `src/content/governance/agreements/`
-3. **`policies`** - Governance policies loaded from `src/content/governance/policies/`
-4. **`proposals`** - Governance proposals loaded from `src/content/governance/proposals/`
+1. **`agreements`** - Governance agreements loaded from `src/content/governance/agreements/`
+2. **`policies`** - Governance policies loaded from `src/content/governance/policies/`
+3. **`proposals`** - Governance proposals loaded from `src/content/governance/proposals/`
 
 #### Content Loading
 
@@ -209,22 +209,66 @@ Each route file:
 - File: `src/content/governance/policies/operations/authority-delegation.md`
 - URL: `/policies/operations/authority-delegation/`
 
-#### Index Pages
+#### Index Pages with Dynamic Content
 
-Collection index pages (`/agreements/`, `/policies/`, `/proposals/`) are MDX templates in `src/content/docs/` that use the `<CollectionList>` component:
+Each main collection (agreements, policies, proposals) has a dedicated index page that combines static content from the governance repository with a dynamically generated list of all documents in that collection.
 
-```mdx
----
-title: Agreements
-description: Core agreements and foundational documents
----
+**Locations:**
+- `src/pages/agreements/index.astro`
+- `src/pages/policies/index.astro`
+- `src/pages/proposals/index.astro`
 
-import CollectionList from '../../../components/CollectionList.astro';
+##### How Index Pages Work
 
-<CollectionList collection="agreements" />
-```
+Each index page:
 
-The `CollectionList` component queries the collection and renders grouped, linked entries.
+1. **Reads governance content** - Loads the corresponding `index.md` file from the governance submodule (e.g., `src/content/governance/agreements/index.md`)
+2. **Extracts frontmatter** - Pulls `description` and other metadata from the governance index file
+3. **Extracts H1 title** - Uses the first H1 heading as the page title
+4. **Renders markdown** - Converts markdown content to HTML using the `marked` library
+5. **Queries the collection** - Gets all entries from the collection (e.g., all agreements)
+6. **Extracts document titles** - Uses Astro's `render()` to extract H1 headings when titles aren't in frontmatter
+7. **Groups by folder** - Organizes documents by subfolder structure
+8. **Displays cards** - Renders wide horizontal cards with title, description, and optional status badges
+
+##### Card Layout
+
+Documents are displayed as wide, horizontal cards with:
+
+- **Border with hover effect** - Changes to accent color on hover
+- **Document title** - Extracted from frontmatter or H1 heading
+- **Description** - Shown below title if available in frontmatter
+- **Status badge** - Color-coded badge in top-right corner (draft/active/deprecated)
+- **Folder grouping** - Documents organized under subfolder headings
+- **Full-width cards** - Each document gets its own card stacked vertically (not a multi-column grid)
+
+##### Title Extraction Logic
+
+For accurate titles in both navigation and index cards:
+
+1. **First**: Check frontmatter `title` field
+2. **Then**: Extract first H1 heading from document using `render()`
+3. **Finally**: Fall back to entry ID if neither exists
+
+This ensures page titles like "Operating Agreement" are displayed instead of filenames like "operating-agreement".
+
+##### Content Source
+
+The index page content (introduction, description, context) comes from `index.md` files in the governance repository:
+
+- `src/content/governance/agreements/index.md`
+- `src/content/governance/policies/index.md`
+- `src/content/governance/proposals/index.md`
+
+This maintains the governance repository as the single source of truth for all content, including index page prose.
+
+##### Benefits
+
+- **Single source of truth** - All content including index pages managed in governance repo
+- **Auto-updating lists** - Adding new documents automatically updates index pages
+- **Rich context** - Combines curated prose with comprehensive document listings
+- **Consistent styling** - Cards match site's visual design language
+- **Mobile-friendly** - Responsive card layout works well on all screen sizes
 
 #### Custom Navigation Sidebar
 

@@ -348,23 +348,28 @@ starlight-theme-select select {
 }
 
 /* Enhanced navigation with brand colors */
+.sidebar-content nav a {
+	color: var(--sl-color-gray-4);
+}
+
+.sidebar-content nav a:hover {
+	background-color: var(--sb-text-highlight);
+	color: var(--sb-charcoal);
+}
+
 .sidebar-content nav a[aria-current="page"] {
 	background-color: var(--sb-highlight);
 	color: var(--sb-primary-dark);
 	border-left: 3px solid var(--sb-primary);
 }
 
-.sidebar-content nav a:hover {
-	background-color: var(--sb-text-highlight);
-	color: var(--sb-primary);
-}
-
 .sidebar-content nav details > summary {
+	color: var(--sl-color-gray-4);
 	transition: color var(--sb-transition-fast);
 }
 
 .sidebar-content nav details > summary:hover {
-	color: var(--sb-primary);
+	color: var(--sb-charcoal);
 }
 
 /* Responsive adjustments */

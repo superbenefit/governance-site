@@ -17,8 +17,15 @@ const { collection } = Astro.props;
 // Get all entries from the specified collection
 const entries = await getCollection(collection);
 
-// Sort by ID (alphabetically, which maintains directory structure)
-const sortedEntries = entries.sort((a, b) => a.id.localeCompare(b.id));
+// Sort entries based on collection type
+const sortedEntries = entries.sort((a, b) => {
+	// For proposals with endDate, sort by most recent first
+	if (collection === 'proposals' && a.data.endDate && b.data.endDate) {
+		return b.data.endDate.getTime() - a.data.endDate.getTime();
+	}
+	// Default: sort alphabetically by ID
+	return a.id.localeCompare(b.id);
+});
 
 // Group by top-level directory
 const grouped = sortedEntries.reduce((acc, entry) => {

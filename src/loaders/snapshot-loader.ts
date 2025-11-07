@@ -32,7 +32,6 @@ import { request, gql } from 'graphql-request';
 import type { Loader } from 'astro/loaders';
 import { marked } from 'marked';
 import fs from 'fs/promises';
-import path from 'path';
 
 const SNAPSHOT_GRAPHQL_ENDPOINT = 'https://hub.snapshot.org/graphql';
 const SNAPSHOT_SPACE = 'superbenefit.eth';

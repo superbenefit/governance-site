@@ -10,7 +10,7 @@ This website serves as the public interface for SuperBenefit DAO's governance do
 
 - **Agreements** - Relational foundations that define how community members work together
 - **Policies** - Practical coordination mechanisms across different operational domains
-- **Proposals** - Institutional memory archive preserving decision-making processes and deliberative context
+- **Proposals** - Institutional memory archive preserving decision-making processes and deliberative context, automatically fetched from [Snapshot](https://snapshot.org/#/superbenefit.eth)
 
 SuperBenefit DAO embraces "minimum viable coordination"—establishing just enough structure to enable effective collaboration while preserving contributor autonomy. This documentation site makes that framework transparent and accessible to all community members and the wider public.
 
@@ -102,7 +102,10 @@ All commands are run from the root of the project:
 │   │   └── governance/       # Git submodule (governance repository)
 │   │       ├── agreements/   # Agreement markdown files
 │   │       ├── policies/     # Policy markdown files
-│   │       └── proposals/    # Proposal markdown files
+│   │       └── proposals/    # Proposal markdown files (optional - not used)
+│   ├── loaders/              # Custom content loaders
+│   │   ├── README.md             # Detailed loader documentation
+│   │   └── snapshot-loader.ts    # Snapshot API integration
 │   ├── pages/                # Route pages
 │   │   ├── index.astro       # Home/landing page
 │   │   ├── agreements/
@@ -140,9 +143,11 @@ This site uses:
 - **Astro 5.x** - Modern static site generator
 - **Starlight** - Astro's official documentation theme
 - **Content Collections** - Type-safe content management with Astro's collection system
-- **Custom Content Loaders** - Dynamic loading from governance submodule
+- **Custom Content Loaders** - Dynamic loading from governance submodule and Snapshot API
 - **Dynamic Routing** - Manual route generation for full control
 - **Sharp** - Optimized image processing
+- **graphql-request** - GraphQL client for Snapshot API integration
+- **marked** - Markdown to HTML conversion for proposal content
 
 ### Content Loader Architecture
 
@@ -152,9 +157,9 @@ The site implements a custom content loading architecture that separates governa
 
 Three governance content collections are defined in `src/content.config.ts`:
 
-1. **`agreements`** - Governance agreements loaded from `src/content/governance/agreements/`
-2. **`policies`** - Governance policies loaded from `src/content/governance/policies/`
-3. **`proposals`** - Governance proposals loaded from `src/content/governance/proposals/`
+1. **`agreements`** - Governance agreements loaded from `src/content/governance/agreements/` using `glob()` loader
+2. **`policies`** - Governance policies loaded from `src/content/governance/policies/` using `glob()` loader
+3. **`proposals`** - Governance proposals fetched from Snapshot API using a custom `snapshotLoader()` (see [Snapshot Proposals](#snapshot-proposals-integration))
 
 #### Content Loading
 
@@ -360,6 +365,185 @@ To modify navigation behavior:
 5. **Folder Open/Collapse Logic:** Modify the `open` attribute on `<details>` elements
 
 **Important:** Subfolders (like `metagovernance`, `operations`) do not have index pages. Only top-level collections (Agreements, Policies, Proposals) have clickable folder names that link to `/collection/index.mdx` pages.
+
+#### Snapshot Proposals Integration
+
+The proposals collection has a unique implementation that fetches data from the [Snapshot voting platform](https://snapshot.org) rather than loading from local markdown files. This provides an up-to-date archive of DAO governance decisions.
+
+**Location:** `src/loaders/snapshot-loader.ts`
+
+##### Overview
+
+The custom Snapshot loader:
+- Fetches passed proposals from the `superbenefit.eth` Snapshot space via GraphQL API
+- Implements intelligent caching to minimize API calls and speed up builds
+- Converts proposal markdown content to HTML for proper rendering
+- Calculates voting outcomes and displays comprehensive voting metadata
+- Only includes closed proposals that passed (>50% voting threshold)
+
+##### Architecture
+
+**Data Flow:**
+1. **Build Time** - Loader queries Snapshot GraphQL API at `https://hub.snapshot.org/graphql`
+2. **Cache Check** - Checks `src/.snapshot-cache.json` for previously processed proposals
+3. **Process New** - Only processes new/changed proposals (closed proposals are immutable)
+4. **Markdown Conversion** - Converts proposal body from markdown to HTML using `marked` library
+5. **Content Sanitization** - Strips dangerous HTML tags for security
+6. **Store Entries** - Returns typed entries for Astro content collection
+
+**GraphQL Query:**
+```graphql
+query GetProposals($space: String!, $first: Int!) {
+  proposals(
+    first: $first
+    where: { space: $space, state: "closed" }
+    orderBy: "created"
+    orderDirection: desc
+  ) {
+    id
+    title
+    body
+    choices
+    scores
+    scores_total
+    votes
+    start
+    end
+    state
+    author
+    snapshot
+  }
+}
+```
+
+##### Caching Strategy
+
+The loader implements an efficient file-based cache:
+
+**Cache Location:** `src/.snapshot-cache.json` (gitignored)
+
+**Cache Validation:**
+- Uses proposal ID + end timestamp + state for validation
+- Closed proposals are immutable on Snapshot, so cached HTML is always valid
+- Skips expensive markdown conversion for cached proposals
+- Significantly speeds up subsequent builds
+
+**Cache Structure:**
+```typescript
+{
+  id: string,           // Proposal ID
+  end: number,          // End timestamp
+  state: string,        // Proposal state ('closed')
+  htmlBody: string,     // Pre-rendered HTML
+  data: object,         // Proposal metadata
+  cachedAt: number      // Cache timestamp
+}
+```
+
+##### Proposal Display
+
+Each proposal page includes:
+
+**Main Content:**
+- Full proposal body (markdown converted to HTML)
+- Original formatting preserved with GitHub Flavored Markdown
+
+**Voting Results Card:**
+- Winning choice and vote percentage
+- Total number of voters
+- Status badge (passed/rejected)
+- Expandable full breakdown of all choices and scores
+- Author address (shortened format)
+- Start and end dates
+- Link to original Snapshot proposal
+
+**Status Calculation:**
+- Proposal passes if winning choice has >50% of total voting power
+- Only passed proposals are included in collection
+
+##### Navigation Sorting
+
+Proposals in the sidebar navigation are sorted by `endDate` (most recent first) to match the proposals index page:
+
+- Uses `buildProposalsNavTree()` function with date-based sorting
+- Falls back to `lastUpdated` then alphabetical if no date available
+- Titles truncated to 59 characters to prevent navigation overflow
+- Uses ellipsis (…) for truncated titles
+
+##### Configuration
+
+Configure the loader in `src/content.config.ts`:
+
+```typescript
+proposals: defineCollection({
+  loader: snapshotLoader({
+    space: 'superbenefit.eth',        // Snapshot space name
+    limit: 20,                         // Max proposals to fetch
+    includeFailedProposals: false,     // Only include passed proposals
+    useMockData: false,                // Use mock data for testing
+  }),
+  schema: snapshotProposalSchema,
+})
+```
+
+**Options:**
+- `space` - Snapshot space identifier (e.g., `superbenefit.eth`)
+- `limit` - Maximum number of proposals to fetch (default: 20)
+- `includeFailedProposals` - Include rejected proposals (default: false)
+- `useMockData` - Use mock data instead of API for local development (default: false)
+
+##### Schema Extensions
+
+The `snapshotProposalSchema` extends the base `governanceSchema` with Snapshot-specific fields:
+
+```typescript
+{
+  // Base governance fields
+  title: string (optional),
+  description: string (required),
+  status: 'passed' | 'rejected' (required),
+
+  // Snapshot-specific fields
+  snapshotId: string (optional),
+  author: string (optional),
+  choices: string[] (optional),
+  scores: number[] (optional),
+  scores_total: number (optional),
+  votes: number (optional),
+  startDate: date (optional),
+  endDate: date (optional),
+  snapshot: string (optional),        // Block number
+  winningChoice: string (optional),
+  winningScore: number (optional),
+  percentageVoted: number (optional),
+}
+```
+
+##### Development Notes
+
+**Local Development:**
+- Set `useMockData: true` in config for offline development
+- Cache file speeds up builds after first successful fetch
+- Network errors fall back gracefully with helpful warnings
+
+**Production Builds:**
+- Fetches latest proposals at build time
+- Cache ensures incremental builds are fast
+- Only new proposals trigger API calls and markdown processing
+
+**Security:**
+- Content sanitization removes `<script>`, `<iframe>`, and other dangerous tags
+- Only safe HTML tags preserved in rendered output
+- Prevents XSS attacks from malicious proposal content
+
+##### Future Enhancements
+
+Potential improvements documented in `src/loaders/README.md`:
+- Rate limiting with exponential backoff
+- Cache TTL/expiration for rebuilds
+- Webhook-triggered incremental updates
+- Support for active proposals (not just closed)
+- Filtering by date range or specific proposal IDs
 
 #### Why This Architecture?
 

@@ -6,24 +6,36 @@
  *
  * Architecture:
  * - Queries Snapshot GraphQL API at build time
+ * - Implements incremental loading with file-based cache
+ * - Only processes new or changed proposals
+ * - Reuses cached HTML for unchanged proposals
  * - Filters for closed proposals
  * - Calculates if proposal passed (>50% threshold)
  * - Sanitizes content for security
  * - Converts markdown to HTML for proper rendering
  * - Returns typed entries for Astro content collections
  *
+ * Caching:
+ * - Cache stored in .snapshot-cache.json (gitignored)
+ * - Compares raw markdown body to detect changes
+ * - Skips expensive markdown conversion for cached proposals
+ * - Significantly speeds up subsequent builds
+ *
  * Future enhancements:
- * - Add caching layer to reduce API calls
- * - Support incremental updates
  * - Add rate limiting handling
+ * - Cache expiration/TTL
+ * - Support for webhook-triggered updates
  */
 
 import { request, gql } from 'graphql-request';
 import type { Loader } from 'astro/loaders';
 import { marked } from 'marked';
+import fs from 'fs/promises';
+import path from 'path';
 
 const SNAPSHOT_GRAPHQL_ENDPOINT = 'https://hub.snapshot.org/graphql';
 const SNAPSHOT_SPACE = 'superbenefit.eth';
+const CACHE_FILE = '.snapshot-cache.json';
 
 /**
  * GraphQL query to fetch proposals from Snapshot
@@ -80,6 +92,41 @@ interface SnapshotProposal {
 
 interface SnapshotResponse {
   proposals: SnapshotProposal[];
+}
+
+/**
+ * Cached proposal data structure
+ * Stores processed HTML and metadata to avoid reprocessing unchanged proposals
+ */
+interface CachedProposal {
+  id: string;
+  rawBody: string; // Original markdown body for comparison
+  htmlBody: string; // Processed HTML
+  data: any; // Proposal metadata
+  cachedAt: number; // Timestamp when cached
+}
+
+/**
+ * Reads the proposal cache from disk
+ * Returns a map of proposal ID to cached data
+ */
+async function readCache(): Promise<Map<string, CachedProposal>> {
+  try {
+    const cacheData = await fs.readFile(CACHE_FILE, 'utf-8');
+    const parsed = JSON.parse(cacheData);
+    return new Map(Object.entries(parsed));
+  } catch (error) {
+    // Cache doesn't exist or is invalid, return empty map
+    return new Map();
+  }
+}
+
+/**
+ * Writes the proposal cache to disk
+ */
+async function writeCache(cache: Map<string, CachedProposal>): Promise<void> {
+  const cacheObject = Object.fromEntries(cache);
+  await fs.writeFile(CACHE_FILE, JSON.stringify(cacheObject, null, 2), 'utf-8');
 }
 
 /**
@@ -170,6 +217,10 @@ export function snapshotLoader(options: {
       logger.info(`Fetching proposals from Snapshot space: ${space}`);
 
       try {
+        // Read cache
+        const cache = await readCache();
+        logger.info(`Loaded cache with ${cache.size} proposal(s)`);
+
         let proposals: SnapshotProposal[];
 
         if (useMockData) {
@@ -191,10 +242,14 @@ export function snapshotLoader(options: {
           proposals = response.proposals;
         }
 
-        logger.info(`Found ${proposals.length} closed proposals`);
+        logger.info(`Found ${proposals.length} closed proposals from API`);
 
         // Process each proposal
         let loadedCount = 0;
+        let cachedCount = 0;
+        let processedCount = 0;
+        const updatedCache = new Map<string, CachedProposal>();
+
         for (const proposal of proposals) {
           const outcome = didProposalPass(proposal);
 
@@ -210,27 +265,36 @@ export function snapshotLoader(options: {
           // Sanitize the proposal body content
           const sanitizedBody = sanitizeContent(proposal.body);
 
-          // Log body length and preview for debugging
-          logger.info(`Proposal body length: ${sanitizedBody.length} characters`);
-          if (sanitizedBody.length > 0) {
-            const preview = sanitizedBody.substring(0, 100).replace(/\n/g, ' ');
-            logger.info(`Body preview: ${preview}...`);
+          // Check if we have this proposal in cache and if it's unchanged
+          const cached = cache.get(id);
+          let htmlBody: string;
 
-            // Detect content type
-            const hasHtmlTags = /<[a-z][\s\S]*>/i.test(sanitizedBody);
-            const hasMarkdown = /[#*_\[\]]/g.test(sanitizedBody);
-            logger.info(`Content analysis: HTML tags: ${hasHtmlTags}, Markdown syntax: ${hasMarkdown}`);
+          if (cached && cached.rawBody === sanitizedBody) {
+            // Use cached HTML - no need to reprocess
+            htmlBody = cached.htmlBody;
+            cachedCount++;
+            logger.info(`✓ Using cached version: ${proposal.title}`);
+          } else {
+            // New or changed proposal - process it
+            logger.info(`Processing ${cached ? 'updated' : 'new'} proposal: ${proposal.title}`);
+            logger.info(`  Body length: ${sanitizedBody.length} characters`);
+
+            if (sanitizedBody.length > 0) {
+              const preview = sanitizedBody.substring(0, 100).replace(/\n/g, ' ');
+              logger.info(`  Preview: ${preview}...`);
+            }
+
+            // Convert markdown to HTML for proper rendering
+            htmlBody = sanitizedBody.length > 0
+              ? await marked(sanitizedBody, {
+                  breaks: true, // Convert single line breaks to <br>
+                  gfm: true, // GitHub Flavored Markdown
+                })
+              : '';
+
+            logger.info(`  Converted to HTML, length: ${htmlBody.length} characters`);
+            processedCount++;
           }
-
-          // Convert markdown to HTML for proper rendering
-          const htmlBody = sanitizedBody.length > 0
-            ? await marked(sanitizedBody, {
-                breaks: true, // Convert single line breaks to <br>
-                gfm: true, // GitHub Flavored Markdown
-              })
-            : '';
-
-          logger.info(`Converted to HTML, length: ${htmlBody.length} characters`);
 
           // Prepare the data object that matches our schema
           const data = {
@@ -255,7 +319,6 @@ export function snapshotLoader(options: {
           };
 
           // Store the entry with HTML body
-          // The markdown has been converted to HTML for proper rendering
           store.set({
             id,
             data,
@@ -263,11 +326,23 @@ export function snapshotLoader(options: {
             digest: generateDigest(data),
           });
 
-          logger.info(`✓ Loaded proposal: ${proposal.title} (${outcome.passed ? 'PASSED' : 'FAILED'})`);
+          // Update cache with this proposal
+          updatedCache.set(id, {
+            id,
+            rawBody: sanitizedBody,
+            htmlBody,
+            data,
+            cachedAt: Date.now(),
+          });
+
           loadedCount++;
         }
 
-        logger.info(`Successfully loaded ${loadedCount} proposal(s)`);
+        // Write updated cache to disk
+        await writeCache(updatedCache);
+        logger.info(`Cache updated with ${updatedCache.size} proposal(s)`);
+
+        logger.info(`Successfully loaded ${loadedCount} proposal(s) - ${cachedCount} from cache, ${processedCount} newly processed`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error(`Failed to fetch proposals from Snapshot: ${errorMessage}`);

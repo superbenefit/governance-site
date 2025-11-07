@@ -10,6 +10,9 @@ export default defineConfig({
 			// Allow marked to be processed by Vite for SSR
 			noExternal: ['marked'],
 		},
+		optimizeDeps: {
+			include: ['marked']
+		},
 	},
 	integrations: [
 		starlight({

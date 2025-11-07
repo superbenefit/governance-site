@@ -95,6 +95,8 @@ All commands are run from the root of the project:
 ├── src/
 │   ├── assets/               # Images and media files
 │   ├── components/
+│   │   ├── starlight/
+│   │   │   └── Sidebar.astro     # Custom navigation sidebar (overrides Starlight)
 │   │   └── CollectionList.astro  # Component for querying/displaying collection entries
 │   ├── content/
 │   │   ├── docs/             # Site pages (landing, indexes) - MDX
@@ -223,6 +225,97 @@ import CollectionList from '../../../components/CollectionList.astro';
 ```
 
 The `CollectionList` component queries the collection and renders grouped, linked entries.
+
+#### Custom Navigation Sidebar
+
+The site implements a custom sidebar navigation system that dynamically generates hierarchical navigation from the governance content collections, replacing Starlight's default sidebar configuration.
+
+**Location:** `src/components/starlight/Sidebar.astro`
+
+##### Features
+
+The custom sidebar provides:
+
+1. **Dynamic Navigation** - Automatically generates navigation from `agreements`, `policies`, and `proposals` collections
+2. **Hierarchical Organization** - Groups content by folder structure (e.g., `policies/metagovernance/`, `policies/operations/`)
+3. **Clickable Top-Level Folders** - Agreements, Policies, and Proposals folders link to their index pages
+4. **Smart Folder States** - Lower-level folders collapse by default and expand when viewing pages within them
+5. **Clean Visual Design**:
+   - No bullets on folders (uses native `<details>` disclosure triangles)
+   - Bullets on individual pages for easy scanning
+   - Bold top-level folder names
+   - Adequate spacing between sections
+6. **Mobile-Optimized** - Responsive styles with 44px touch targets and optimized spacing for mobile devices
+
+##### Navigation Structure
+
+```
+Agreements (clickable → /agreements/)
+├─ Dao (collapsible folder)
+│  └─ • Operating Agreement
+
+Policies (clickable → /policies/)
+├─ Metagovernance (collapsible folder)
+│  ├─ • Amendment Policy
+│  ├─ • Dispute Policy
+│  └─ ...
+├─ Operations (collapsible folder)
+│  └─ ...
+└─ Platforms (collapsible folder)
+   └─ ...
+
+Proposals (clickable → /proposals/)
+
+Reference (de-emphasized section)
+├─ • Governance Framework
+├─ • Code of Conduct
+└─ • Contributing
+```
+
+##### How It Works
+
+**Content Organization:**
+1. Queries all entries from each collection (`getCollection('agreements')`, etc.)
+2. Groups entries by folder path using the `buildNavTree()` helper function
+3. Transforms folder names with `formatGroupName()` (e.g., `metagovernance` → `Metagovernance`)
+4. Extracts page titles using `formatTitle()` (from frontmatter or H1)
+
+**Folder State Logic:**
+- **Top-level folders** (Agreements, Policies, Proposals): Always `open` by default
+- **Lower-level folders** (subfolders): Use `open={currentPath.startsWith(\`/collection/folder/\`)}` to automatically expand when viewing pages within that folder
+- Clicking folder names navigates to index pages (top-level only)
+- Clicking disclosure triangles toggles folder expansion without navigation
+
+**Mobile Optimizations:**
+- `min-height: 44px` on top-level folder links for adequate touch targets
+- `@media (max-width: 768px)` breakpoint with:
+  - Reduced negative margins to prevent edge cutoff
+  - Tighter spacing for better mobile density
+  - Same navigation works in mobile hamburger menu
+
+**CSS Architecture:**
+- Negative margins (`margin-left: -1.25rem` on desktop, `-0.75rem` on mobile) on folders to align with page bullets
+- `.folder-item` class for folders (no bullets)
+- `.page-item` class for pages (with bullets)
+- `.top-level-item` class for main sections (bold, extra spacing)
+- `.reference-section` class for de-emphasized static links
+
+**JavaScript Enhancement:**
+- Prevents top-level folder links from toggling `<details>` elements
+- Uses `stopPropagation()` so clicking folder names navigates while clicking triangles toggles
+- Only applies to top-level folders (subfolders use native behavior)
+
+##### Customization
+
+To modify navigation behavior:
+
+1. **Add/Remove Collections:** Edit the collection queries and navigation structure in `Sidebar.astro`
+2. **Change Folder Names:** Modify the `formatGroupName()` function
+3. **Adjust Spacing:** Update CSS variables and margin/padding values
+4. **Mobile Breakpoint:** Change the `@media (max-width: 768px)` value
+5. **Folder Open/Collapse Logic:** Modify the `open` attribute on `<details>` elements
+
+**Important:** Subfolders (like `metagovernance`, `operations`) do not have index pages. Only top-level collections (Agreements, Policies, Proposals) have clickable folder names that link to `/collection/index.mdx` pages.
 
 #### Why This Architecture?
 

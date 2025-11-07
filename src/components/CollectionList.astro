@@ -101,6 +101,7 @@ const grouped = sortedEntries.reduce((acc, entry) => {
 		text-decoration: none;
 		color: inherit;
 		display: block;
+		padding-right: 6rem; /* Reserve space for status badge */
 	}
 
 	.entry-title {
@@ -140,5 +141,15 @@ const grouped = sortedEntries.reduce((acc, entry) => {
 	.status-deprecated {
 		background: var(--sl-color-gray-5);
 		color: var(--sl-color-gray-3);
+	}
+
+	.status-passed {
+		background: var(--sl-color-green-low);
+		color: var(--sl-color-green-high);
+	}
+
+	.status-rejected {
+		background: var(--sl-color-red-low);
+		color: var(--sl-color-red-high);
 	}
 </style>

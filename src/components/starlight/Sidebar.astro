@@ -267,6 +267,14 @@ const currentPath = Astro.url.pathname;
 </div>
 
 <style>
+	/* Top-level navigation - remove indent caused by .sidebar-content padding */
+	ul.top-level {
+		margin-left: calc(-1 * var(--sl-sidebar-pad-x)) !important;
+		margin-right: calc(-1 * var(--sl-sidebar-pad-x)) !important;
+		padding-left: var(--sl-sidebar-pad-x) !important;
+		padding-right: var(--sl-sidebar-pad-x) !important;
+	}
+
 	/* Top-level navigation items styling */
 	.top-level-item {
 		list-style: none !important;

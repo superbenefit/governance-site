@@ -99,13 +99,6 @@ All commands are run from the root of the project:
 │   │   │   └── Sidebar.astro     # Custom navigation sidebar (overrides Starlight)
 │   │   └── CollectionList.astro  # Component for querying/displaying collection entries
 │   ├── content/
-│   │   ├── docs/             # Site pages (landing, indexes) - MDX
-│   │   │   ├── agreements/
-│   │   │   │   └── index.mdx    # Agreements index with CollectionList
-│   │   │   ├── policies/
-│   │   │   │   └── index.mdx    # Policies index with CollectionList
-│   │   │   └── proposals/
-│   │   │       └── index.mdx    # Proposals index with CollectionList
 │   │   └── governance/       # Git submodule (governance repository)
 │   │       ├── agreements/   # Agreement markdown files
 │   │       ├── policies/     # Policy markdown files
@@ -125,13 +118,15 @@ All commands are run from the root of the project:
 
 ### Working with Content
 
-Documentation pages are written in Markdown (`.md`) or MDX (`.mdx`) format and stored in `src/content/docs/`. Each file is automatically exposed as a route based on its file name.
+Governance documentation is written in Markdown (`.md`) format and managed in the separate [governance repository](https://github.com/superbenefit/governance).
 
-To add or update documentation:
-1. Edit files in `src/content/docs/` or sync content from the [governance repository](https://github.com/superbenefit/governance)
-2. Include required frontmatter: `title` and `description`
-3. Update sidebar configuration in `astro.config.mjs` if needed
+To add or update governance content:
+1. Make changes in the governance repository
+2. Update the submodule: `git submodule update --remote src/content/governance`
+3. Commit the submodule reference update
 4. Test locally with `npm run dev`
+
+The custom navigation sidebar automatically reflects the governance content structure.
 
 ## Architecture
 
@@ -149,12 +144,11 @@ The site implements a custom content loading architecture that separates governa
 
 #### Collections
 
-Four content collections are defined in `src/content.config.ts`:
+Three governance content collections are defined in `src/content.config.ts`:
 
-1. **`docs`** - Site pages (landing page, index pages) using Starlight's loader
-2. **`agreements`** - Governance agreements loaded from `src/content/governance/agreements/`
-3. **`policies`** - Governance policies loaded from `src/content/governance/policies/`
-4. **`proposals`** - Governance proposals loaded from `src/content/governance/proposals/`
+1. **`agreements`** - Governance agreements loaded from `src/content/governance/agreements/`
+2. **`policies`** - Governance policies loaded from `src/content/governance/policies/`
+3. **`proposals`** - Governance proposals loaded from `src/content/governance/proposals/`
 
 #### Content Loading
 
@@ -208,23 +202,6 @@ Each route file:
 **Example URL mapping:**
 - File: `src/content/governance/policies/operations/authority-delegation.md`
 - URL: `/policies/operations/authority-delegation/`
-
-#### Index Pages
-
-Collection index pages (`/agreements/`, `/policies/`, `/proposals/`) are MDX templates in `src/content/docs/` that use the `<CollectionList>` component:
-
-```mdx
----
-title: Agreements
-description: Core agreements and foundational documents
----
-
-import CollectionList from '../../../components/CollectionList.astro';
-
-<CollectionList collection="agreements" />
-```
-
-The `CollectionList` component queries the collection and renders grouped, linked entries.
 
 #### Custom Navigation Sidebar
 

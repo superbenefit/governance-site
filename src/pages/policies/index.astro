@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { readFile } from 'node:fs/promises';
 import { Marked } from 'marked';
@@ -31,12 +31,21 @@ const contentWithoutTitle = markdownContent.replace(/^#\s+.+$/m, '').trim();
 const marked = new Marked();
 const renderedContent = await marked.parse(contentWithoutTitle);
 
-// Get all policies and group by folder
+// Get all policies and extract titles
 const policies = await getCollection('policies');
 
+// Extract titles from each policy
+const policiesWithTitles = await Promise.all(
+	policies.map(async (policy) => {
+		const { headings } = await render(policy);
+		const displayTitle = policy.data.title || headings.find(h => h.depth === 1)?.text || policy.id;
+		return { ...policy, displayTitle };
+	})
+);
+
 // Group by first folder segment
-const groupedPolicies: Record<string, typeof policies> = {};
-policies.forEach(policy => {
+const groupedPolicies: Record<string, typeof policiesWithTitles> = {};
+policiesWithTitles.forEach(policy => {
 	const folder = policy.id.split('/')[0] || 'other';
 	if (!groupedPolicies[folder]) {
 		groupedPolicies[folder] = [];
@@ -63,7 +72,7 @@ const formatFolderName = (folder: string) => {
 					{items.map(policy => (
 						<li class="entry-item">
 							<a href={`/policies/${policy.id}/`} class="entry-link">
-								<strong class="entry-title">{policy.data.title || policy.id.split('/').pop()?.replace('.md', '')}</strong>
+								<strong class="entry-title">{policy.displayTitle}</strong>
 								{policy.data.description && (
 									<p class="entry-description">{policy.data.description}</p>
 								)}

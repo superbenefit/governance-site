@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { readFile } from 'node:fs/promises';
 import { Marked } from 'marked';
@@ -31,17 +31,24 @@ const contentWithoutTitle = markdownContent.replace(/^#\s+.+$/m, '').trim();
 const marked = new Marked();
 const renderedContent = await marked.parse(contentWithoutTitle);
 
-// Get all proposals
+// Get all proposals and extract titles
 const proposals = await getCollection('proposals');
 
+// Extract titles from each proposal
+const proposalsWithTitles = await Promise.all(
+	proposals.map(async (proposal) => {
+		const { headings } = await render(proposal);
+		const displayTitle = proposal.data.title || headings.find(h => h.depth === 1)?.text || proposal.id;
+		return { ...proposal, displayTitle };
+	})
+);
+
 // Sort by date if available, otherwise by title
-const sortedProposals = proposals.sort((a, b) => {
+const sortedProposals = proposalsWithTitles.sort((a, b) => {
 	if (a.data.lastUpdated && b.data.lastUpdated) {
 		return b.data.lastUpdated.getTime() - a.data.lastUpdated.getTime();
 	}
-	const titleA = a.data.title || a.id;
-	const titleB = b.data.title || b.id;
-	return titleA.localeCompare(titleB);
+	return a.displayTitle.localeCompare(b.displayTitle);
 });
 ---
 
@@ -61,7 +68,7 @@ const sortedProposals = proposals.sort((a, b) => {
 				{sortedProposals.map(proposal => (
 					<li class="entry-item">
 						<a href={`/proposals/${proposal.id}/`} class="entry-link">
-							<strong class="entry-title">{proposal.data.title || proposal.id.replace('.md', '')}</strong>
+							<strong class="entry-title">{proposal.displayTitle}</strong>
 							{proposal.data.description && (
 								<p class="entry-description">{proposal.data.description}</p>
 							)}

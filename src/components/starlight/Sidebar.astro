@@ -93,12 +93,9 @@ const currentPath = Astro.url.pathname;
 							<li class="folder-item">
 								<details open={currentPath.startsWith(`/agreements/${groupKey}/`)}>
 									<summary>
-										<a href={`/agreements/${groupKey}/`}>
 											<span class="group-label">
 												<span>{formatGroupName(groupKey)}</span>
 											</span>
-										</a>
-										<Icon name="right-caret" class="caret" size="1.25rem" />
 									</summary>
 									<ul>
 										{items.map(entry => (
@@ -147,12 +144,9 @@ const currentPath = Astro.url.pathname;
 							<li class="folder-item">
 								<details open={currentPath.startsWith(`/policies/${groupKey}/`)}>
 									<summary>
-										<a href={`/policies/${groupKey}/`}>
 											<span class="group-label">
 												<span>{formatGroupName(groupKey)}</span>
 											</span>
-										</a>
-										<Icon name="right-caret" class="caret" size="1.25rem" />
 									</summary>
 									<ul>
 										{items.map(entry => (
@@ -201,12 +195,9 @@ const currentPath = Astro.url.pathname;
 							<li class="folder-item">
 								<details open={currentPath.startsWith(`/proposals/${groupKey}/`)}>
 									<summary>
-										<a href={`/proposals/${groupKey}/`}>
 											<span class="group-label">
 												<span>{formatGroupName(groupKey)}</span>
 											</span>
-										</a>
-										<Icon name="right-caret" class="caret" size="1.25rem" />
 									</summary>
 									<ul>
 										{items.map(entry => (
@@ -299,21 +290,6 @@ const currentPath = Astro.url.pathname;
 		list-style: disc !important; /* Ensure pages have bullets */
 	}
 
-	/* Folder name links */
-	.folder-item summary a {
-		text-decoration: none !important;
-		color: inherit !important;
-	}
-
-	.folder-item summary a:hover {
-		text-decoration: underline !important;
-	}
-
-	/* Caret icon styling */
-	.folder-item summary .caret {
-		margin-left: 0.25rem !important;
-	}
-
 	/* Reference section styling (de-emphasized) */
 	.reference-section {
 		margin-top: 2rem !important;
@@ -337,15 +313,14 @@ const currentPath = Astro.url.pathname;
 </style>
 
 <script>
-	// Prevent folder name links from toggling the details element
-	// Only the caret icon should toggle
+	// Prevent top-level folder name links from toggling the details element
 	document.addEventListener('DOMContentLoaded', () => {
-		const folderLinks = document.querySelectorAll('.folder-item summary a, .top-level-item summary a');
+		const topLevelLinks = document.querySelectorAll('.top-level-item summary a');
 
-		folderLinks.forEach(link => {
+		topLevelLinks.forEach(link => {
 			link.addEventListener('click', (e) => {
 				// Stop the click from propagating to the summary element
-				// This prevents the details from toggling
+				// This prevents the details from toggling when clicking the folder name
 				e.stopPropagation();
 			});
 		});

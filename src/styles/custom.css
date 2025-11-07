@@ -318,70 +318,70 @@ starlight-theme-select select {
 /* Visual hierarchy for sidebar navigation */
 
 /* Add visual separator before Reference section (de-emphasized items) */
-.sidebar-content nav > ul > li:last-child {
+.sidebar-content > ul > li:last-child {
 	margin-top: 2rem;
 	padding-top: 1.5rem;
 	border-top: 1px solid var(--sb-border);
 }
 
 /* De-emphasize the Reference section */
-.sidebar-content nav > ul > li:last-child > details > summary {
+.sidebar-content > ul > li:last-child > details > summary {
 	opacity: 0.7;
 	font-size: 0.9rem;
 }
 
-.sidebar-content nav > ul > li:last-child a {
+.sidebar-content > ul > li:last-child a {
 	opacity: 0.8;
 	font-size: 0.875rem;
 }
 
 /* Hover states for de-emphasized items */
-.sidebar-content nav > ul > li:last-child > details > summary:hover,
-.sidebar-content nav > ul > li:last-child a:hover {
+.sidebar-content > ul > li:last-child > details > summary:hover,
+.sidebar-content > ul > li:last-child a:hover {
 	opacity: 1;
 }
 
 /* Main sections (Agreements, Policies, Proposals) styling */
 /* Keep them prominent with default styling */
-.sidebar-content nav > ul > li:not(:last-child) > details > summary {
+.sidebar-content > ul > li:not(:last-child) > details > summary {
 	font-weight: 500;
 }
 
 /* Enhanced navigation with brand colors */
-.sidebar-content nav a,
-.sidebar-content nav a:link,
-.sidebar-content nav a:visited {
+.sidebar-content a,
+.sidebar-content a:link,
+.sidebar-content a:visited {
 	color: var(--sb-charcoal);
 	text-decoration-color: var(--sb-charcoal);
 }
 
-.sidebar-content nav a:hover {
+.sidebar-content a:hover {
 	background-color: var(--sb-text-highlight);
 	color: var(--sb-darkgray);
 	text-decoration-color: var(--sb-darkgray);
 }
 
-.sidebar-content nav a[aria-current="page"],
-.sidebar-content nav a[aria-current="page"]:link,
-.sidebar-content nav a[aria-current="page"]:visited {
+.sidebar-content a[aria-current="page"],
+.sidebar-content a[aria-current="page"]:link,
+.sidebar-content a[aria-current="page"]:visited {
 	background-color: var(--sb-highlight);
 	color: var(--sb-primary-dark);
 	border-left: 3px solid var(--sb-primary);
 	text-decoration-color: var(--sb-primary-dark);
 }
 
-.sidebar-content nav details > summary {
+.sidebar-content details > summary {
 	color: var(--sb-charcoal);
 	transition: color var(--sb-transition-fast);
 }
 
-.sidebar-content nav details > summary:hover {
+.sidebar-content details > summary:hover {
 	color: var(--sb-darkgray);
 }
 
 /* Responsive adjustments */
 @media (max-width: 72rem) {
-	.sidebar-content nav > ul > li:last-child {
+	.sidebar-content > ul > li:last-child {
 		margin-top: 1.5rem;
 		padding-top: 1rem;
 	}
@@ -587,23 +587,23 @@ starlight-theme-select select {
 	}
 
 	/* Navigation colors in dark mode */
-	.sidebar-content nav a,
-	.sidebar-content nav a:link,
-	.sidebar-content nav a:visited {
+	.sidebar-content a,
+	.sidebar-content a:link,
+	.sidebar-content a:visited {
 		color: var(--sb-darkgray);
 		text-decoration-color: var(--sb-darkgray);
 	}
 
-	.sidebar-content nav a:hover {
+	.sidebar-content a:hover {
 		color: var(--sb-lightgray);
 		text-decoration-color: var(--sb-lightgray);
 	}
 
-	.sidebar-content nav details > summary {
+	.sidebar-content details > summary {
 		color: var(--sb-darkgray);
 	}
 
-	.sidebar-content nav details > summary:hover {
+	.sidebar-content details > summary:hover {
 		color: var(--sb-lightgray);
 	}
 }

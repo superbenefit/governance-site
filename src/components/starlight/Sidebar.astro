@@ -219,7 +219,7 @@ const currentPath = Astro.url.pathname;
 
 		<!-- Proposals Section -->
 		<li class="top-level-item">
-			<details open>
+			<details open={currentPath.startsWith('/proposals/')}>
 				<summary>
 					<a href="/proposals/">
 						<span class="group-label">

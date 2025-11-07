@@ -2,8 +2,9 @@
 
 **Workstream**: WS4: Design & Polish
 **Branch**: `claude/design-polish-011CUsnQ9fg8gXD2wv6e52SL`
-**Status**: Planning Phase
+**Status**: Planning Phase (Revised)
 **Updated**: 2025-11-07
+**Revision**: Added Phase 4 for Navigation & Sidebar styling
 
 ## Overview
 
@@ -19,13 +20,23 @@ This workstream focuses on customizing the SuperBenefit DAO Governance Site visu
 ✅ Basic Starlight configuration in astro.config.mjs
 ✅ Content loader system implemented
 
+### What Will Be Done by WS3 (Navigation Config)
+✅ Custom Sidebar component (`src/components/starlight/Sidebar.astro`)
+✅ Dynamic navigation from governance collections
+✅ Basic custom CSS file (`src/styles/custom.css`) with initial hierarchy styling
+✅ Reference section with visual separator and de-emphasis
+✅ Overview links for each main section
+
+**Branch**: `claude/governance-navigation-config-011CUq7zf3uAfXjmSKzswh4C` (will be merged to main before WS4)
+
 ### What's Missing (WS4 Scope)
 ❌ Custom theme colors aligned with SuperBenefit brand
 ❌ Custom fonts/typography
-❌ Enhanced visual hierarchy
-❌ Custom CSS for improved aesthetics
+❌ Enhanced navigation/sidebar styling (beyond WS3 basics)
+❌ Polished visual hierarchy across all components
+❌ Enhanced component aesthetics
 ❌ Optimized images and assets
-❌ Additional custom components (if needed)
+❌ Landing page visual polish
 ❌ Responsive design validation
 ❌ Accessibility validation
 
@@ -33,16 +44,16 @@ This workstream focuses on customizing the SuperBenefit DAO Governance Site visu
 
 **Required Before Starting**:
 - ✅ WS1 complete (basic structure exists)
+- ✅ WS2a/WS2b complete (content loaders implemented)
+- ⏳ **WS3 merged to main** (navigation config with custom sidebar)
 - ⏳ `temp/design-system.md` (to be provided by user)
 
-**Parallel Work**:
-- Can work independently from WS3 (navigation config)
-- Will integrate smoothly with existing content loaders
+**Note**: WS3 establishes the navigation structure and basic styling. WS4 will enhance and polish the navigation design with brand colors, typography, and refined interactions.
 
 ## Implementation Phases
 
 ### Phase 1: Design System Review & Setup
-**Goal**: Understand brand requirements and set up custom styling infrastructure
+**Goal**: Understand brand requirements and prepare to extend existing styles
 
 **Tasks**:
 1. Review `temp/design-system.md` for:
@@ -52,17 +63,22 @@ This workstream focuses on customizing the SuperBenefit DAO Governance Site visu
    - Spacing/layout preferences
    - Any SuperBenefit brand assets
 
-2. Create custom CSS file structure:
+2. Review existing CSS from WS3:
+   - Check `src/styles/custom.css` for existing styles
+   - Understand current navigation hierarchy implementation
+   - Plan how to extend without breaking existing styles
+
+3. Plan additional CSS files if needed:
    ```
    src/styles/
-   ├── custom.css          # Main custom CSS (overrides Starlight)
-   ├── components.css      # Custom component styles
-   └── utilities.css       # Helper classes (optional)
+   ├── custom.css          # Already exists from WS3, will extend
+   ├── components.css      # New: Component-specific styles (optional)
+   └── utilities.css       # New: Helper classes (optional)
    ```
 
-3. Configure Starlight to use custom CSS in `astro.config.mjs`
+4. Verify custom CSS is already configured in `astro.config.mjs` by WS3
 
-**Deliverable**: Custom CSS infrastructure ready, design tokens documented
+**Deliverable**: Design system understood, extension plan documented
 
 ---
 
@@ -138,7 +154,67 @@ This workstream focuses on customizing the SuperBenefit DAO Governance Site visu
 
 ---
 
-### Phase 4: Landing Page Enhancement
+### Phase 4: Navigation & Sidebar Styling
+**Goal**: Enhance navigation design beyond WS3 basics with brand styling and polished interactions
+
+**What WS3 Provides (Starting Point)**:
+- Custom Sidebar component with dynamic navigation
+- Basic visual hierarchy (Reference section de-emphasized)
+- Functional navigation structure with groups and overview links
+- Initial custom.css with basic styling
+
+**WS4 Enhancements**:
+
+1. **Color & Theme Application**:
+   - Apply brand colors to navigation elements
+   - Style active/current page indicators
+   - Enhance hover states with brand accent colors
+   - Ensure proper contrast in dark/light modes
+   - Style the visual separator for Reference section
+
+2. **Typography & Spacing**:
+   - Apply custom fonts to navigation items
+   - Refine font sizes and weights for hierarchy
+   - Improve spacing between items and groups
+   - Optimize line-height for readability
+   - Balance indentation for nested items
+
+3. **Interactive States**:
+   - Enhance hover effects (transitions, colors)
+   - Improve focus indicators for keyboard navigation
+   - Add subtle animations for expanding/collapsing groups
+   - Style the details/summary elements
+   - Ensure touch-friendly targets on mobile
+
+4. **Visual Hierarchy Refinement**:
+   - Further emphasize main sections (Agreements, Policies, Proposals)
+   - Refine de-emphasis of Reference section
+   - Add visual distinction for Overview links
+   - Consider icons or badges for sections (optional)
+   - Ensure group labels are visually distinct from page links
+
+5. **Sidebar Layout & Chrome**:
+   - Style sidebar background, borders, shadows
+   - Optimize sidebar width and padding
+   - Enhance mobile menu/drawer appearance
+   - Style the hamburger button on mobile
+   - Add any branding elements to sidebar header
+
+6. **Responsive Navigation**:
+   - Ensure mobile menu is polished and usable
+   - Test tablet breakpoint transitions
+   - Optimize for different screen sizes
+   - Ensure smooth animations/transitions
+
+**Files to Modify**:
+- `src/styles/custom.css` - Extend with enhanced navigation styles
+- `src/components/starlight/Sidebar.astro` - Add classes/markup if needed
+
+**Deliverable**: Polished, brand-aligned navigation with excellent UX
+
+---
+
+### Phase 5: Landing Page Enhancement
 **Goal**: Create an impactful, welcoming landing page
 
 **Current State**: Basic splash page with hero and 3-card grid
@@ -170,7 +246,7 @@ This workstream focuses on customizing the SuperBenefit DAO Governance Site visu
 
 ---
 
-### Phase 5: Index Page Enhancement
+### Phase 6: Index Page Enhancement
 **Goal**: Improve section index pages for better navigation
 
 **Current State**: Basic index pages with CollectionList integration
@@ -195,7 +271,7 @@ This workstream focuses on customizing the SuperBenefit DAO Governance Site visu
 
 ---
 
-### Phase 6: Asset Optimization
+### Phase 7: Asset Optimization
 **Goal**: Ensure fast loading and proper asset management
 
 **Tasks**:
@@ -219,7 +295,7 @@ This workstream focuses on customizing the SuperBenefit DAO Governance Site visu
 
 ---
 
-### Phase 7: Responsive Design Testing
+### Phase 8: Responsive Design Testing
 **Goal**: Ensure excellent experience across all device sizes
 
 **Testing Checklist**:
@@ -249,7 +325,7 @@ This workstream focuses on customizing the SuperBenefit DAO Governance Site visu
 
 ---
 
-### Phase 8: Accessibility Validation
+### Phase 9: Accessibility Validation
 **Goal**: Ensure WCAG 2.1 AA compliance minimum
 
 **Testing Checklist**:
@@ -289,9 +365,15 @@ This workstream focuses on customizing the SuperBenefit DAO Governance Site visu
 
 ## File Changes Summary
 
+### Files from WS3 (Already Exist):
+```
+src/styles/custom.css                      # Created by WS3, will be extended in WS4
+src/components/starlight/Sidebar.astro     # Created by WS3, may add classes in WS4
+astro.config.mjs                           # Modified by WS3, may add more config in WS4
+```
+
 ### New Files to Create:
 ```
-src/styles/custom.css              # Main theme customization
 src/styles/components.css          # Component-specific styles (optional)
 src/components/StatusBadge.astro   # Reusable status badge (optional)
 src/assets/logo.svg                # SuperBenefit logo (if provided)
@@ -299,10 +381,11 @@ src/assets/logo.svg                # SuperBenefit logo (if provided)
 
 ### Files to Modify:
 ```
-astro.config.mjs                   # Add custom CSS imports
-src/content/docs/index.mdx         # Landing page enhancements
-src/components/CollectionList.astro # Style improvements
-public/favicon.svg                 # Replace with brand favicon
+src/styles/custom.css                       # Extend with theme colors, fonts, navigation polish
+src/components/starlight/Sidebar.astro      # Add classes/markup if needed for styling
+src/content/docs/index.mdx                  # Landing page visual enhancements
+src/components/CollectionList.astro         # Style improvements and polish
+public/favicon.svg                          # Replace with brand favicon
 ```
 
 ### Files to Add (Assets):
@@ -328,6 +411,7 @@ public/og-image.png                # Social sharing image (optional)
 
 ### Acceptance Criteria:
 - [ ] Site uses SuperBenefit brand colors and typography
+- [ ] Navigation/sidebar is polished with brand styling and smooth interactions
 - [ ] All components have polished, professional appearance
 - [ ] Landing page is visually appealing and clear
 - [ ] Index pages are easy to navigate
@@ -336,13 +420,17 @@ public/og-image.png                # Social sharing image (optional)
 - [ ] Site meets WCAG 2.1 AA accessibility standards
 - [ ] Build completes successfully with no errors
 - [ ] Lighthouse scores: 90+ for all categories
+- [ ] WS3's navigation functionality remains intact
 
 ## Integration Notes
 
-### Working with WS3 (Navigation)
-- Design should complement navigation structure
-- Visual hierarchy should align with navigation hierarchy
-- Any custom navigation styling should be coordinated
+### Working with WS3 (Navigation Config)
+**WS3 provides the foundation**, WS4 adds the polish:
+- WS3 creates: Custom Sidebar component, dynamic navigation, basic hierarchy
+- WS4 enhances: Brand colors, typography, refined interactions, visual polish
+- **Must not break**: WS3's navigation structure, hierarchy logic, or functional behavior
+- **Safe to modify**: Colors, fonts, spacing, hover effects, transitions, styling classes
+- **Coordination**: Review WS3's custom.css before adding styles to avoid conflicts
 
 ### Future Extensibility
 - Use CSS custom properties for easy theme updates
@@ -351,16 +439,17 @@ public/og-image.png                # Social sharing image (optional)
 
 ## Implementation Timeline Estimate
 
-**Total Estimated Time**: 4-6 hours
+**Total Estimated Time**: 5-7 hours
 
 - Phase 1 (Setup): 30 min
 - Phase 2 (Theme): 1 hour
 - Phase 3 (Components): 1.5 hours
-- Phase 4 (Landing): 1 hour
-- Phase 5 (Index Pages): 45 min
-- Phase 6 (Assets): 30 min
-- Phase 7 (Responsive): 45 min
-- Phase 8 (Accessibility): 1 hour
+- Phase 4 (Navigation & Sidebar): 1 hour
+- Phase 5 (Landing): 1 hour
+- Phase 6 (Index Pages): 45 min
+- Phase 7 (Assets): 30 min
+- Phase 8 (Responsive): 45 min
+- Phase 9 (Accessibility): 1 hour
 
 ## Success Metrics
 

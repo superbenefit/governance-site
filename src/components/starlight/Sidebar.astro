@@ -70,16 +70,13 @@ const currentPath = Astro.url.pathname;
 		<li class="top-level-item">
 			<details open>
 				<summary>
-					<span class="group-label">
-						<span class="large">Agreements</span>
-					</span>
+					<a href="/agreements/">
+						<span class="group-label">
+							<span class="large">Agreements</span>
+						</span>
+					</a>
 				</summary>
 				<ul>
-					<li>
-						<a href="/agreements/" aria-current={currentPath === '/agreements/' ? 'page' : 'false'}>
-							<span>Overview</span>
-						</a>
-					</li>
 					{Object.entries(agreementsTree).map(([groupKey, items]) => (
 						groupKey === '_root' ? (
 							items.map(entry => (
@@ -94,11 +91,14 @@ const currentPath = Astro.url.pathname;
 							))
 						) : (
 							<li class="folder-item">
-								<details open>
+								<details open={currentPath.startsWith(`/agreements/${groupKey}/`)}>
 									<summary>
-										<span class="group-label">
-											<span>{formatGroupName(groupKey)}</span>
-										</span>
+										<a href={`/agreements/${groupKey}/`}>
+											<span class="group-label">
+												<span>{formatGroupName(groupKey)}</span>
+											</span>
+										</a>
+										<Icon name="right-caret" class="caret" size="1.25rem" />
 									</summary>
 									<ul>
 										{items.map(entry => (
@@ -124,16 +124,13 @@ const currentPath = Astro.url.pathname;
 		<li class="top-level-item">
 			<details open>
 				<summary>
-					<span class="group-label">
-						<span class="large">Policies</span>
-					</span>
+					<a href="/policies/">
+						<span class="group-label">
+							<span class="large">Policies</span>
+						</span>
+					</a>
 				</summary>
 				<ul>
-					<li>
-						<a href="/policies/" aria-current={currentPath === '/policies/' ? 'page' : 'false'}>
-							<span>Overview</span>
-						</a>
-					</li>
 					{Object.entries(policiesTree).map(([groupKey, items]) => (
 						groupKey === '_root' ? (
 							items.map(entry => (
@@ -148,11 +145,14 @@ const currentPath = Astro.url.pathname;
 							))
 						) : (
 							<li class="folder-item">
-								<details open>
+								<details open={currentPath.startsWith(`/policies/${groupKey}/`)}>
 									<summary>
-										<span class="group-label">
-											<span>{formatGroupName(groupKey)}</span>
-										</span>
+										<a href={`/policies/${groupKey}/`}>
+											<span class="group-label">
+												<span>{formatGroupName(groupKey)}</span>
+											</span>
+										</a>
+										<Icon name="right-caret" class="caret" size="1.25rem" />
 									</summary>
 									<ul>
 										{items.map(entry => (
@@ -178,16 +178,13 @@ const currentPath = Astro.url.pathname;
 		<li class="top-level-item">
 			<details open>
 				<summary>
-					<span class="group-label">
-						<span class="large">Proposals</span>
-					</span>
+					<a href="/proposals/">
+						<span class="group-label">
+							<span class="large">Proposals</span>
+						</span>
+					</a>
 				</summary>
 				<ul>
-					<li>
-						<a href="/proposals/" aria-current={currentPath === '/proposals/' ? 'page' : 'false'}>
-							<span>Overview</span>
-						</a>
-					</li>
 					{Object.entries(proposalsTree).map(([groupKey, items]) => (
 						groupKey === '_root' ? (
 							items.map(entry => (
@@ -202,11 +199,14 @@ const currentPath = Astro.url.pathname;
 							))
 						) : (
 							<li class="folder-item">
-								<details open>
+								<details open={currentPath.startsWith(`/proposals/${groupKey}/`)}>
 									<summary>
-										<span class="group-label">
-											<span>{formatGroupName(groupKey)}</span>
-										</span>
+										<a href={`/proposals/${groupKey}/`}>
+											<span class="group-label">
+												<span>{formatGroupName(groupKey)}</span>
+											</span>
+										</a>
+										<Icon name="right-caret" class="caret" size="1.25rem" />
 									</summary>
 									<ul>
 										{items.map(entry => (
@@ -292,10 +292,26 @@ const currentPath = Astro.url.pathname;
 	.folder-item {
 		list-style: none !important;
 		margin-left: -1.25rem !important; /* Shift left to compensate for no bullet */
+		margin-bottom: 0.75rem !important; /* Add spacing between folders */
 	}
 
 	.page-item {
 		list-style: disc !important; /* Ensure pages have bullets */
+	}
+
+	/* Folder name links */
+	.folder-item summary a {
+		text-decoration: none !important;
+		color: inherit !important;
+	}
+
+	.folder-item summary a:hover {
+		text-decoration: underline !important;
+	}
+
+	/* Caret icon styling */
+	.folder-item summary .caret {
+		margin-left: 0.25rem !important;
 	}
 
 	/* Reference section styling (de-emphasized) */
@@ -319,3 +335,19 @@ const currentPath = Astro.url.pathname;
 		opacity: 1 !important;
 	}
 </style>
+
+<script>
+	// Prevent folder name links from toggling the details element
+	// Only the caret icon should toggle
+	document.addEventListener('DOMContentLoaded', () => {
+		const folderLinks = document.querySelectorAll('.folder-item summary a, .top-level-item summary a');
+
+		folderLinks.forEach(link => {
+			link.addEventListener('click', (e) => {
+				// Stop the click from propagating to the summary element
+				// This prevents the details from toggling
+				e.stopPropagation();
+			});
+		});
+	});
+</script>

@@ -620,18 +620,12 @@ starlight-theme-select select {
    Match left sidebar width for consistency
    ======================================== */
 
-/* Override Starlight's default 25% calculation for right TOC */
+/* Target the outer aside container for the right TOC */
 @media (min-width: 72rem) {
-	.right-sidebar-panel {
+	.right-sidebar-container {
 		width: var(--sl-sidebar-width) !important;
 		max-width: var(--sl-sidebar-width) !important;
 		flex-shrink: 0;
-	}
-
-	/* Inner container adjustment */
-	.right-sidebar-panel > .sl-container {
-		width: 100% !important;
-		max-width: 100% !important;
 	}
 }
 

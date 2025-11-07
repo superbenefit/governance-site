@@ -1,0 +1,122 @@
+---
+import { getCollection } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+
+// Get counts for each collection
+const agreements = await getCollection('agreements');
+const policies = await getCollection('policies');
+const proposals = await getCollection('proposals');
+---
+
+<StarlightPage
+	frontmatter={{
+		title: 'SuperBenefit Governance',
+		description: 'Governance documentation for SuperBenefit DAO - agreements, policies, and proposals that define how we work together.',
+		template: 'splash',
+	}}
+>
+	<div class="sl-container">
+		<div class="sl-markdown-content">
+			<p class="lead">
+				Welcome to the SuperBenefit DAO governance documentation. This site provides accessible and searchable access to the agreements, policies, and proposals that define how we work together.
+			</p>
+
+			<h2>Documentation Collections</h2>
+
+			<div class="card-grid">
+				<a href="/agreements/" class="card">
+					<h3>Agreements</h3>
+					<p>Relational foundations that define how community members work together</p>
+					<p class="count">{agreements.length} {agreements.length === 1 ? 'document' : 'documents'}</p>
+				</a>
+
+				<a href="/policies/" class="card">
+					<h3>Policies</h3>
+					<p>Practical coordination mechanisms across different operational domains</p>
+					<p class="count">{policies.length} {policies.length === 1 ? 'document' : 'documents'}</p>
+				</a>
+
+				<a href="/proposals/" class="card">
+					<h3>Proposals</h3>
+					<p>Institutional memory archive preserving decision-making processes and deliberative context</p>
+					<p class="count">{proposals.length} {proposals.length === 1 ? 'document' : 'documents'}</p>
+				</a>
+			</div>
+
+			<h2>About Our Governance</h2>
+			<p>
+				SuperBenefit DAO embraces "minimum viable coordination"—establishing just enough structure to enable effective collaboration while preserving contributor autonomy. This documentation site makes that framework transparent and accessible to all community members and the wider public.
+			</p>
+		</div>
+	</div>
+
+	<style>
+		.lead {
+			font-size: 1.25rem;
+			line-height: 1.6;
+			margin-bottom: 2rem;
+			color: var(--sl-color-gray-4);
+		}
+
+		.card-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: var(--sb-space-6);
+			margin: var(--sb-space-8) 0;
+		}
+
+		.card {
+			display: block;
+			padding: var(--sb-space-6);
+			background: var(--sb-surface);
+			border: 1px solid var(--sb-border);
+			border-radius: var(--sb-radius-lg);
+			box-shadow: var(--sb-shadow-md);
+			text-decoration: none;
+			color: var(--sl-color-text);
+			transition: all var(--sb-transition-base);
+		}
+
+		.card:hover {
+			border-color: var(--sb-primary);
+			box-shadow: var(--sb-shadow-lg);
+			transform: translateY(-4px);
+		}
+
+		.card h3 {
+			margin-top: 0;
+			color: var(--sb-primary);
+			font-size: var(--text-xl, 1.25rem);
+			margin-bottom: var(--sb-space-3);
+		}
+
+		.card p {
+			margin-bottom: 0.5rem;
+			color: var(--sl-color-gray-4);
+			line-height: 1.5;
+		}
+
+		.card .count {
+			font-size: 0.875rem;
+			color: var(--sb-primary-light);
+			font-weight: 600;
+			margin-top: var(--sb-space-4);
+		}
+
+		h2 {
+			color: var(--sl-color-gray-6);
+			border-bottom: 2px solid var(--sb-primary-pale);
+			padding-bottom: var(--sb-space-2);
+			margin-top: var(--sb-space-12);
+		}
+
+		/* Dark mode adjustments */
+		[data-theme="dark"] .card {
+			background: var(--sl-color-gray-2);
+		}
+
+		[data-theme="dark"] h2 {
+			color: var(--sl-color-gray-1);
+		}
+	</style>
+</StarlightPage>

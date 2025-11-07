@@ -95,26 +95,27 @@ All commands are run from the root of the project:
 ├── src/
 │   ├── assets/               # Images and media files
 │   ├── components/
-│   │   └── CollectionList.astro  # Component for querying/displaying collection entries
+│   │   └── starlight/
+│   │       └── Sidebar.astro     # Custom navigation sidebar (overrides Starlight)
 │   ├── content/
-│   │   ├── docs/             # Site pages (landing, indexes) - MDX
-│   │   │   ├── agreements/
-│   │   │   │   └── index.mdx    # Agreements index with CollectionList
-│   │   │   ├── policies/
-│   │   │   │   └── index.mdx    # Policies index with CollectionList
-│   │   │   └── proposals/
-│   │   │       └── index.mdx    # Proposals index with CollectionList
+│   │   ├── docs/             # Empty directory (required by Starlight)
 │   │   └── governance/       # Git submodule (governance repository)
 │   │       ├── agreements/   # Agreement markdown files
 │   │       ├── policies/     # Policy markdown files
 │   │       └── proposals/    # Proposal markdown files
-│   ├── pages/                # Dynamic route pages
+│   ├── pages/                # Route pages
+│   │   ├── index.astro       # Home/landing page
 │   │   ├── agreements/
-│   │   │   └── [...slug].astro  # Renders agreement pages
+│   │   │   ├── index.astro       # Agreements index with dynamic card list
+│   │   │   └── [...slug].astro   # Individual agreement pages
 │   │   ├── policies/
-│   │   │   └── [...slug].astro  # Renders policy pages
+│   │   │   ├── index.astro       # Policies index with dynamic card list
+│   │   │   └── [...slug].astro   # Individual policy pages
 │   │   └── proposals/
-│   │       └── [...slug].astro  # Renders proposal pages
+│   │       ├── index.astro       # Proposals index with dynamic card list
+│   │       └── [...slug].astro   # Individual proposal pages
+│   ├── styles/
+│   │   └── custom.css        # Custom CSS for navigation styling
 │   └── content.config.ts     # Content collections configuration
 ├── astro.config.mjs          # Astro and Starlight configuration
 ├── CLAUDE.md                 # AI assistant guidance
@@ -123,13 +124,15 @@ All commands are run from the root of the project:
 
 ### Working with Content
 
-Documentation pages are written in Markdown (`.md`) or MDX (`.mdx`) format and stored in `src/content/docs/`. Each file is automatically exposed as a route based on its file name.
+Governance documentation is written in Markdown (`.md`) format and managed in the separate [governance repository](https://github.com/superbenefit/governance).
 
-To add or update documentation:
-1. Edit files in `src/content/docs/` or sync content from the [governance repository](https://github.com/superbenefit/governance)
-2. Include required frontmatter: `title` and `description`
-3. Update sidebar configuration in `astro.config.mjs` if needed
+To add or update governance content:
+1. Make changes in the governance repository
+2. Update the submodule: `git submodule update --remote src/content/governance`
+3. Commit the submodule reference update
 4. Test locally with `npm run dev`
+
+The custom navigation sidebar automatically reflects the governance content structure.
 
 ## Architecture
 
@@ -147,12 +150,11 @@ The site implements a custom content loading architecture that separates governa
 
 #### Collections
 
-Four content collections are defined in `src/content.config.ts`:
+Three governance content collections are defined in `src/content.config.ts`:
 
-1. **`docs`** - Site pages (landing page, index pages) using Starlight's loader
-2. **`agreements`** - Governance agreements loaded from `src/content/governance/agreements/`
-3. **`policies`** - Governance policies loaded from `src/content/governance/policies/`
-4. **`proposals`** - Governance proposals loaded from `src/content/governance/proposals/`
+1. **`agreements`** - Governance agreements loaded from `src/content/governance/agreements/`
+2. **`policies`** - Governance policies loaded from `src/content/governance/policies/`
+3. **`proposals`** - Governance proposals loaded from `src/content/governance/proposals/`
 
 #### Content Loading
 
@@ -207,22 +209,157 @@ Each route file:
 - File: `src/content/governance/policies/operations/authority-delegation.md`
 - URL: `/policies/operations/authority-delegation/`
 
-#### Index Pages
+#### Index Pages with Dynamic Content
 
-Collection index pages (`/agreements/`, `/policies/`, `/proposals/`) are MDX templates in `src/content/docs/` that use the `<CollectionList>` component:
+Each main collection (agreements, policies, proposals) has a dedicated index page that combines static content from the governance repository with a dynamically generated list of all documents in that collection.
 
-```mdx
----
-title: Agreements
-description: Core agreements and foundational documents
----
+**Locations:**
+- `src/pages/agreements/index.astro`
+- `src/pages/policies/index.astro`
+- `src/pages/proposals/index.astro`
 
-import CollectionList from '../../../components/CollectionList.astro';
+##### How Index Pages Work
 
-<CollectionList collection="agreements" />
+Each index page:
+
+1. **Reads governance content** - Loads the corresponding `index.md` file from the governance submodule (e.g., `src/content/governance/agreements/index.md`)
+2. **Extracts frontmatter** - Pulls `description` and other metadata from the governance index file
+3. **Extracts H1 title** - Uses the first H1 heading as the page title
+4. **Renders markdown** - Converts markdown content to HTML using the `marked` library
+5. **Queries the collection** - Gets all entries from the collection (e.g., all agreements)
+6. **Extracts document titles** - Uses Astro's `render()` to extract H1 headings when titles aren't in frontmatter
+7. **Groups by folder** - Organizes documents by subfolder structure
+8. **Displays cards** - Renders wide horizontal cards with title, description, and optional status badges
+
+##### Card Layout
+
+Documents are displayed as wide, horizontal cards with:
+
+- **Border with hover effect** - Changes to accent color on hover
+- **Document title** - Extracted from frontmatter or H1 heading
+- **Description** - Shown below title if available in frontmatter
+- **Status badge** - Color-coded badge in top-right corner (draft/active/deprecated)
+- **Folder grouping** - Documents organized under subfolder headings
+- **Full-width cards** - Each document gets its own card stacked vertically (not a multi-column grid)
+
+##### Title Extraction Logic
+
+For accurate titles in both navigation and index cards:
+
+1. **First**: Check frontmatter `title` field
+2. **Then**: Extract first H1 heading from document using `render()`
+3. **Finally**: Fall back to entry ID if neither exists
+
+This ensures page titles like "Operating Agreement" are displayed instead of filenames like "operating-agreement".
+
+##### Content Source
+
+The index page content (introduction, description, context) comes from `index.md` files in the governance repository:
+
+- `src/content/governance/agreements/index.md`
+- `src/content/governance/policies/index.md`
+- `src/content/governance/proposals/index.md`
+
+This maintains the governance repository as the single source of truth for all content, including index page prose.
+
+##### Benefits
+
+- **Single source of truth** - All content including index pages managed in governance repo
+- **Auto-updating lists** - Adding new documents automatically updates index pages
+- **Rich context** - Combines curated prose with comprehensive document listings
+- **Consistent styling** - Cards match site's visual design language
+- **Mobile-friendly** - Responsive card layout works well on all screen sizes
+
+#### Custom Navigation Sidebar
+
+The site implements a custom sidebar navigation system that dynamically generates hierarchical navigation from the governance content collections, replacing Starlight's default sidebar configuration.
+
+**Location:** `src/components/starlight/Sidebar.astro`
+
+##### Features
+
+The custom sidebar provides:
+
+1. **Dynamic Navigation** - Automatically generates navigation from `agreements`, `policies`, and `proposals` collections
+2. **Hierarchical Organization** - Groups content by folder structure (e.g., `policies/metagovernance/`, `policies/operations/`)
+3. **Clickable Top-Level Folders** - Agreements, Policies, and Proposals folders link to their index pages
+4. **Smart Folder States** - Lower-level folders collapse by default and expand when viewing pages within them
+5. **Clean Visual Design**:
+   - No bullets on folders (uses native `<details>` disclosure triangles)
+   - Bullets on individual pages for easy scanning
+   - Bold top-level folder names
+   - Adequate spacing between sections
+6. **Mobile-Optimized** - Responsive styles with 44px touch targets and optimized spacing for mobile devices
+
+##### Navigation Structure
+
+```
+Agreements (clickable → /agreements/)
+├─ Dao (collapsible folder)
+│  └─ • Operating Agreement
+
+Policies (clickable → /policies/)
+├─ Metagovernance (collapsible folder)
+│  ├─ • Amendment Policy
+│  ├─ • Dispute Policy
+│  └─ ...
+├─ Operations (collapsible folder)
+│  └─ ...
+└─ Platforms (collapsible folder)
+   └─ ...
+
+Proposals (clickable → /proposals/)
+
+Reference (de-emphasized section)
+├─ • Governance Framework
+├─ • Code of Conduct
+└─ • Contributing
 ```
 
-The `CollectionList` component queries the collection and renders grouped, linked entries.
+##### How It Works
+
+**Content Organization:**
+1. Queries all entries from each collection (`getCollection('agreements')`, etc.)
+2. Groups entries by folder path using the `buildNavTree()` helper function
+3. Transforms folder names with `formatGroupName()` (e.g., `metagovernance` → `Metagovernance`)
+4. Extracts page titles using `formatTitle()` (from frontmatter or H1)
+
+**Folder State Logic:**
+- **Top-level folders** (Agreements, Policies, Proposals): Always `open` by default
+- **Lower-level folders** (subfolders): Use `open={currentPath.startsWith(\`/collection/folder/\`)}` to automatically expand when viewing pages within that folder
+- Clicking folder names navigates to index pages (top-level only)
+- Clicking disclosure triangles toggles folder expansion without navigation
+
+**Mobile Optimizations:**
+- `min-height: 44px` on top-level folder links for adequate touch targets
+- `@media (max-width: 768px)` breakpoint with:
+  - Reduced negative margins to prevent edge cutoff
+  - Tighter spacing for better mobile density
+  - Same navigation works in mobile hamburger menu
+
+**CSS Architecture:**
+- Negative margins (`margin-left: -1.25rem` on desktop, `-0.75rem` on mobile) on folders to align with page bullets
+- `.folder-item` class for folders (no bullets)
+- `.page-item` class for pages (with bullets)
+- `.top-level-item` class for main sections (bold, extra spacing)
+- `.reference-section` class for de-emphasized static links
+
+**JavaScript Enhancement:**
+- Prevents top-level folder links from toggling `<details>` elements
+- Uses `stopPropagation()` so clicking folder names navigates while clicking triangles toggles
+- Only applies to top-level folders (subfolders use native behavior)
+
+##### Customization
+
+To modify navigation behavior:
+
+1. **Add/Remove Collections:** Edit the collection queries and navigation structure in `Sidebar.astro`
+2. **Change Folder Names:** Modify the `formatGroupName()` function
+3. **Adjust Spacing:** Update CSS variables and margin/padding values
+4. **Mobile Breakpoint:** Change the `@media (max-width: 768px)` value
+5. **Folder Open/Collapse Logic:** Modify the `open` attribute on `<details>` elements
+
+**Important:** Subfolders (like `metagovernance`, `operations`) do not have index pages. Only top-level collections (Agreements, Policies, Proposals) have clickable folder names that link to `/collection/index.mdx` pages.
 
 #### Why This Architecture?
 

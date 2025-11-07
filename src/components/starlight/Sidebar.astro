@@ -1,0 +1,353 @@
+---
+/**
+ * Custom Sidebar Component for SuperBenefit Governance Site
+ *
+ * Overrides Starlight's default Sidebar to dynamically generate navigation
+ * from governance content collections (agreements, policies, proposals).
+ */
+import { getCollection } from 'astro:content';
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
+import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
+import { Icon } from '@astrojs/starlight/components';
+
+// Get all entries from governance collections
+const agreements = await getCollection('agreements');
+const policies = await getCollection('policies');
+const proposals = await getCollection('proposals');
+
+/**
+ * Build hierarchical navigation structure from collection entries
+ */
+function buildNavTree(entries: any[]) {
+	const grouped = entries.reduce((acc, entry) => {
+		const parts = entry.id.split('/');
+		const groupKey = parts.length > 1 ? parts[0] : '_root';
+		if (!acc[groupKey]) acc[groupKey] = [];
+		acc[groupKey].push(entry);
+		return acc;
+	}, {} as Record<string, typeof entries>);
+
+	Object.keys(grouped).forEach(key => {
+		grouped[key].sort((a, b) => {
+			const titleA = a.data.title || a.id;
+			const titleB = b.data.title || b.id;
+			return titleA.localeCompare(titleB);
+		});
+	});
+
+	return grouped;
+}
+
+const agreementsTree = buildNavTree(agreements);
+const policiesTree = buildNavTree(policies);
+const proposalsTree = buildNavTree(proposals);
+
+function formatGroupName(key: string): string {
+	if (key === '_root') return '';
+	return key
+		.split('-')
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+}
+
+function formatTitle(entry: any): string {
+	if (entry.data.title) return entry.data.title;
+	// Extract filename and format as title
+	const parts = entry.id.split('/');
+	const filename = parts[parts.length - 1].replace('.md', '');
+	return filename
+		.split('-')
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+}
+
+const currentPath = Astro.url.pathname;
+---
+
+<SidebarPersister>
+	<ul class="top-level">
+		<!-- Agreements Section -->
+		<li class="top-level-item">
+			<details open>
+				<summary>
+					<a href="/agreements/">
+						<span class="group-label">
+							<span class="large">Agreements</span>
+						</span>
+					</a>
+				</summary>
+				<ul>
+					{Object.entries(agreementsTree).map(([groupKey, items]) => (
+						groupKey === '_root' ? (
+							items.map(entry => (
+								<li class="page-item">
+									<a
+										href={`/agreements/${entry.id}/`}
+										aria-current={currentPath === `/agreements/${entry.id}/` ? 'page' : 'false'}
+									>
+										<span>{formatTitle(entry)}</span>
+									</a>
+								</li>
+							))
+						) : (
+							<li class="folder-item">
+								<details open={currentPath.startsWith(`/agreements/${groupKey}/`)}>
+									<summary>
+											<span class="group-label">
+												<span>{formatGroupName(groupKey)}</span>
+											</span>
+									</summary>
+									<ul>
+										{items.map(entry => (
+											<li class="page-item">
+												<a
+													href={`/agreements/${entry.id}/`}
+													aria-current={currentPath === `/agreements/${entry.id}/` ? 'page' : 'false'}
+												>
+													<span>{formatTitle(entry)}</span>
+												</a>
+											</li>
+										))}
+									</ul>
+								</details>
+							</li>
+						)
+					))}
+				</ul>
+			</details>
+		</li>
+
+		<!-- Policies Section -->
+		<li class="top-level-item">
+			<details open>
+				<summary>
+					<a href="/policies/">
+						<span class="group-label">
+							<span class="large">Policies</span>
+						</span>
+					</a>
+				</summary>
+				<ul>
+					{Object.entries(policiesTree).map(([groupKey, items]) => (
+						groupKey === '_root' ? (
+							items.map(entry => (
+								<li class="page-item">
+									<a
+										href={`/policies/${entry.id}/`}
+										aria-current={currentPath === `/policies/${entry.id}/` ? 'page' : 'false'}
+									>
+										<span>{formatTitle(entry)}</span>
+									</a>
+								</li>
+							))
+						) : (
+							<li class="folder-item">
+								<details open={currentPath.startsWith(`/policies/${groupKey}/`)}>
+									<summary>
+											<span class="group-label">
+												<span>{formatGroupName(groupKey)}</span>
+											</span>
+									</summary>
+									<ul>
+										{items.map(entry => (
+											<li class="page-item">
+												<a
+													href={`/policies/${entry.id}/`}
+													aria-current={currentPath === `/policies/${entry.id}/` ? 'page' : 'false'}
+												>
+													<span>{formatTitle(entry)}</span>
+												</a>
+											</li>
+										))}
+									</ul>
+								</details>
+							</li>
+						)
+					))}
+				</ul>
+			</details>
+		</li>
+
+		<!-- Proposals Section -->
+		<li class="top-level-item">
+			<details open>
+				<summary>
+					<a href="/proposals/">
+						<span class="group-label">
+							<span class="large">Proposals</span>
+						</span>
+					</a>
+				</summary>
+				<ul>
+					{Object.entries(proposalsTree).map(([groupKey, items]) => (
+						groupKey === '_root' ? (
+							items.map(entry => (
+								<li class="page-item">
+									<a
+										href={`/proposals/${entry.id}/`}
+										aria-current={currentPath === `/proposals/${entry.id}/` ? 'page' : 'false'}
+									>
+										<span>{formatTitle(entry)}</span>
+									</a>
+								</li>
+							))
+						) : (
+							<li class="folder-item">
+								<details open={currentPath.startsWith(`/proposals/${groupKey}/`)}>
+									<summary>
+											<span class="group-label">
+												<span>{formatGroupName(groupKey)}</span>
+											</span>
+									</summary>
+									<ul>
+										{items.map(entry => (
+											<li class="page-item">
+												<a
+													href={`/proposals/${entry.id}/`}
+													aria-current={currentPath === `/proposals/${entry.id}/` ? 'page' : 'false'}
+												>
+													<span>{formatTitle(entry)}</span>
+												</a>
+											</li>
+										))}
+									</ul>
+								</details>
+							</li>
+						)
+					))}
+				</ul>
+			</details>
+		</li>
+
+		<!-- Reference Section (de-emphasized) -->
+		<li class="reference-section">
+			<details>
+				<summary>
+					<span class="group-label">
+						<span class="large">Reference</span>
+					</span>
+				</summary>
+				<ul>
+					<li>
+						<a href="/governance/" aria-current={currentPath === '/governance/' ? 'page' : 'false'}>
+							<span>Governance Framework</span>
+						</a>
+					</li>
+					<li>
+						<a href="/code-of-conduct/" aria-current={currentPath === '/code-of-conduct/' ? 'page' : 'false'}>
+							<span>Code of Conduct</span>
+						</a>
+					</li>
+					<li>
+						<a href="/contributing/" aria-current={currentPath === '/contributing/' ? 'page' : 'false'}>
+							<span>Contributing</span>
+						</a>
+					</li>
+				</ul>
+			</details>
+		</li>
+	</ul>
+</SidebarPersister>
+
+<div class="md:sl-hidden">
+	<MobileMenuFooter />
+</div>
+
+<style>
+	/* Top-level navigation - remove indent caused by .sidebar-content padding */
+	ul.top-level {
+		margin-left: calc(-1 * var(--sl-sidebar-pad-x)) !important;
+		margin-right: calc(-1 * var(--sl-sidebar-pad-x)) !important;
+		padding-left: var(--sl-sidebar-pad-x) !important;
+		padding-right: var(--sl-sidebar-pad-x) !important;
+	}
+
+	/* Top-level navigation items styling */
+	.top-level-item {
+		list-style: none !important;
+		margin-bottom: 1rem !important;
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	.top-level-item > details > summary {
+		padding-left: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	.top-level-item > details > summary .large {
+		font-weight: 600 !important;
+	}
+
+	/* Ensure adequate touch targets on mobile for top-level folder links */
+	.top-level-item > details > summary a {
+		display: inline-block;
+		min-height: 44px; /* Minimum touch target height */
+		line-height: 44px;
+	}
+
+	/* Folder vs Page styling - folders should not have bullets, pages should */
+	.folder-item {
+		list-style: none !important;
+		margin-left: -1.25rem !important; /* Shift left to compensate for no bullet */
+		margin-bottom: 0.75rem !important; /* Add spacing between folders */
+	}
+
+	.page-item {
+		list-style: disc !important; /* Ensure pages have bullets */
+	}
+
+	/* Reference section styling (de-emphasized) */
+	.reference-section {
+		margin-top: 2rem !important;
+		padding-top: 1.5rem !important;
+		border-top: 1px solid var(--sl-color-gray-5) !important;
+		list-style: none !important;
+	}
+
+	.reference-section summary {
+		opacity: 0.7 !important;
+	}
+
+	.reference-section a {
+		opacity: 0.8 !important;
+	}
+
+	.reference-section summary:hover,
+	.reference-section a:hover {
+		opacity: 1 !important;
+	}
+
+	/* Mobile-specific adjustments */
+	@media (max-width: 768px) {
+		/* Reduce folder negative margin on small screens to prevent cutoff */
+		.folder-item {
+			margin-left: -0.75rem !important;
+		}
+
+		/* Slightly reduce spacing between top-level items on mobile */
+		.top-level-item {
+			margin-bottom: 0.875rem !important;
+		}
+
+		/* Reduce folder spacing on mobile */
+		.folder-item {
+			margin-bottom: 0.5rem !important;
+		}
+	}
+</style>
+
+<script>
+	// Prevent top-level folder name links from toggling the details element
+	document.addEventListener('DOMContentLoaded', () => {
+		const topLevelLinks = document.querySelectorAll('.top-level-item summary a');
+
+		topLevelLinks.forEach(link => {
+			link.addEventListener('click', (e) => {
+				// Stop the click from propagating to the summary element
+				// This prevents the details from toggling when clicking the folder name
+				e.stopPropagation();
+			});
+		});
+	});
+</script>

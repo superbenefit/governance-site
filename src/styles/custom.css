@@ -145,6 +145,71 @@ code {
 }
 
 /* ========================================
+   NAVIGATION & SIDEBAR STYLING (WS3)
+   Enhanced with SuperBenefit brand colors
+   ======================================== */
+
+/* Visual hierarchy for sidebar navigation */
+
+/* Add visual separator before Reference section (de-emphasized items) */
+.sidebar-content nav > ul > li:last-child {
+	margin-top: 2rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid var(--sb-border);
+}
+
+/* De-emphasize the Reference section */
+.sidebar-content nav > ul > li:last-child > details > summary {
+	opacity: 0.7;
+	font-size: 0.9rem;
+}
+
+.sidebar-content nav > ul > li:last-child a {
+	opacity: 0.8;
+	font-size: 0.875rem;
+}
+
+/* Hover states for de-emphasized items */
+.sidebar-content nav > ul > li:last-child > details > summary:hover,
+.sidebar-content nav > ul > li:last-child a:hover {
+	opacity: 1;
+}
+
+/* Main sections (Agreements, Policies, Proposals) styling */
+/* Keep them prominent with default styling */
+.sidebar-content nav > ul > li:not(:last-child) > details > summary {
+	font-weight: 500;
+}
+
+/* Enhanced navigation with brand colors */
+.sidebar-content nav a[aria-current="page"] {
+	background-color: var(--sb-highlight);
+	color: var(--sb-primary-dark);
+	border-left: 3px solid var(--sb-primary);
+}
+
+.sidebar-content nav a:hover {
+	background-color: var(--sb-text-highlight);
+	color: var(--sb-primary);
+}
+
+.sidebar-content nav details > summary {
+	transition: color var(--sb-transition-fast);
+}
+
+.sidebar-content nav details > summary:hover {
+	color: var(--sb-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 72rem) {
+	.sidebar-content nav > ul > li:last-child {
+		margin-top: 1.5rem;
+		padding-top: 1rem;
+	}
+}
+
+/* ========================================
    RESPONSIVE DESIGN
    ======================================== */
 

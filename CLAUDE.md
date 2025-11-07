@@ -20,12 +20,14 @@ All commands are run from the root of the project:
 
 ### Content Structure
 
-- **Content Location**: All documentation content lives in `src/content/docs/`
+- **Governance Content**: Governance documentation content lives in `src/content/governance/` (git submodule)
+  - `agreements/` - Relational foundations and core agreements
+  - `policies/` - Coordination mechanisms across operational domains
+  - `proposals/` - Decision-making archive and institutional memory
 - **Content Format**: Documentation pages are written in Markdown (`.md`) or MDX (`.mdx`)
-- **Routing**: Files in `src/content/docs/` are automatically exposed as routes based on their file names
-  - Example: `src/content/docs/guides/example.md` → `/guides/example/`
 - **Content Collections**: The site uses Astro's content collections system configured in `src/content.config.ts`
-  - Uses Starlight's `docsLoader()` and `docsSchema()` for type-safe documentation
+  - Uses custom `glob()` loaders for governance collections
+  - Uses Starlight's `docsLoader()` and `docsSchema()` for site pages
 
 ### Configuration
 
@@ -53,11 +55,14 @@ Starlight provides built-in components that can be imported in MDX files:
 
 ## Working with Content
 
-When creating new documentation pages:
-1. Add `.md` or `.mdx` files to `src/content/docs/`
-2. Include required frontmatter: `title` and `description`
-3. Update sidebar configuration in `astro.config.mjs` if manual navigation is used
-4. For directories with `autogenerate`, new files appear automatically
+Governance content is managed in the separate [governance repository](https://github.com/superbenefit/governance) and integrated via git submodule.
+
+For governance content updates:
+1. Make changes in the governance repository
+2. Update the submodule in this repo: `git submodule update --remote src/content/governance`
+3. Commit the submodule reference update
+
+The custom navigation sidebar (`src/components/starlight/Sidebar.astro`) automatically reflects content structure from the governance collections.
 
 ## Build Output
 

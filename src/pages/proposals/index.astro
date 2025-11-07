@@ -1,0 +1,197 @@
+---
+import { getCollection, render } from 'astro:content';
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { readFile } from 'node:fs/promises';
+import { Marked } from 'marked';
+
+// Read and parse the index.md file from the governance submodule
+const indexPath = './src/content/governance/proposals/index.md';
+const indexContent = await readFile(indexPath, 'utf-8');
+
+// Extract frontmatter
+const frontmatterMatch = indexContent.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+let description = 'Institutional memory archive preserving decision-making processes and deliberative context';
+let markdownContent = indexContent;
+
+if (frontmatterMatch) {
+	const frontmatter = frontmatterMatch[1];
+	markdownContent = frontmatterMatch[2];
+	const descMatch = frontmatter.match(/description:\s*(.+)/);
+	if (descMatch) {
+		description = descMatch[1];
+	}
+}
+
+// Get title from first H1 and remove it from content
+const titleMatch = markdownContent.match(/^#\s+(.+)$/m);
+const title = titleMatch ? titleMatch[1] : 'Proposals';
+const contentWithoutTitle = markdownContent.replace(/^#\s+.+$/m, '').trim();
+
+// Render markdown to HTML
+const marked = new Marked();
+const renderedContent = await marked.parse(contentWithoutTitle);
+
+// Get all proposals and extract titles
+const proposals = await getCollection('proposals');
+
+// Extract titles from each proposal
+const proposalsWithTitles = await Promise.all(
+	proposals.map(async (proposal) => {
+		const { headings } = await render(proposal);
+		const displayTitle = proposal.data.title || headings.find(h => h.depth === 1)?.text || proposal.id;
+		return { ...proposal, displayTitle };
+	})
+);
+
+// Sort by date if available, otherwise by title
+const sortedProposals = proposalsWithTitles.sort((a, b) => {
+	if (a.data.lastUpdated && b.data.lastUpdated) {
+		return b.data.lastUpdated.getTime() - a.data.lastUpdated.getTime();
+	}
+	return a.displayTitle.localeCompare(b.displayTitle);
+});
+---
+
+<StarlightPage frontmatter={{ title, description }}>
+	<div class="sl-markdown-content">
+		<div set:html={renderedContent} />
+
+		<hr />
+
+		<h2>Browse All Proposals</h2>
+		{sortedProposals.length === 0 ? (
+			<p class="empty-state">
+				No proposals have been archived yet. This collection will grow as governance decisions are documented.
+			</p>
+		) : (
+			<ul class="entry-list">
+				{sortedProposals.map(proposal => (
+					<li class="entry-item">
+						<a href={`/proposals/${proposal.id}/`} class="entry-link">
+							<strong class="entry-title">{proposal.displayTitle}</strong>
+							{proposal.data.description && (
+								<p class="entry-description">{proposal.data.description}</p>
+							)}
+						</a>
+						{proposal.data.status && (
+							<span class={`status-badge status-${proposal.data.status}`}>
+								{proposal.data.status}
+							</span>
+						)}
+					</li>
+				))}
+			</ul>
+		)}
+	</div>
+
+	<style>
+		hr {
+			margin: var(--sb-space-12) 0;
+			border: none;
+			border-top: 1px solid var(--sb-border);
+		}
+
+		.empty-state {
+			padding: var(--sb-space-8);
+			background: var(--sb-surface);
+			border: 1px solid var(--sb-border);
+			border-radius: var(--sb-radius-lg);
+			text-align: center;
+			color: var(--sl-color-gray-4);
+			font-style: italic;
+		}
+
+		.entry-list {
+			list-style: none;
+			padding: 0;
+			display: grid;
+			gap: var(--sb-space-4);
+		}
+
+		.entry-item {
+			background: var(--sb-surface);
+			border: 1px solid var(--sb-border);
+			border-radius: var(--sb-radius-lg);
+			padding: var(--sb-space-6);
+			box-shadow: var(--sb-shadow-sm);
+			transition: all var(--sb-transition-base);
+			position: relative;
+		}
+
+		.entry-item:hover {
+			border-color: var(--sb-primary);
+			box-shadow: var(--sb-shadow-md);
+			transform: translateY(-2px);
+		}
+
+		.entry-link {
+			text-decoration: none;
+			color: inherit;
+			display: block;
+		}
+
+		.entry-title {
+			color: var(--sl-color-gray-6);
+			font-size: var(--text-lg, 1.125rem);
+			font-weight: 600;
+			display: block;
+			margin-bottom: var(--sb-space-2);
+			transition: color var(--sb-transition-fast);
+		}
+
+		.entry-link:hover .entry-title {
+			color: var(--sb-primary);
+		}
+
+		.entry-description {
+			color: var(--sl-color-gray-4);
+			margin: 0;
+			font-size: var(--text-sm, 0.875rem);
+			line-height: 1.5;
+		}
+
+		.status-badge {
+			position: absolute;
+			top: var(--sb-space-6);
+			right: var(--sb-space-6);
+			font-size: var(--text-xs, 0.75rem);
+			padding: var(--sb-space-1-5) var(--sb-space-3);
+			border-radius: var(--sb-radius-full);
+			text-transform: uppercase;
+			font-weight: 600;
+			letter-spacing: 0.025em;
+		}
+
+		/* SuperBenefit Brand Colors for Status Badges */
+		.status-draft {
+			background: var(--sb-text-highlight);
+			color: var(--sb-tertiary);
+			border: 1px solid var(--sb-accent-warm);
+		}
+
+		.status-active {
+			background: var(--sb-highlight);
+			color: var(--sb-primary-dark);
+			border: 1px solid var(--sb-primary-light);
+		}
+
+		.status-deprecated {
+			background: var(--sb-border);
+			color: var(--sb-gray);
+			border: 1px solid var(--sb-lightgray);
+		}
+
+		/* Dark mode adjustments */
+		[data-theme="dark"] .empty-state {
+			background: var(--sl-color-gray-2);
+		}
+
+		[data-theme="dark"] .entry-item {
+			background: var(--sl-color-gray-2);
+		}
+
+		[data-theme="dark"] .entry-title {
+			color: var(--sl-color-gray-1);
+		}
+	</style>
+</StarlightPage>

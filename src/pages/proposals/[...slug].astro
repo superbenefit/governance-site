@@ -13,7 +13,7 @@
  * - Proposal author and dates
  * - Participation metrics
  */
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
 export async function getStaticPaths() {
@@ -25,10 +25,10 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content, headings } = await render(entry);
 
-// Use title from frontmatter or extract from first H1
-const title = entry.data.title || headings.find(h => h.depth === 1)?.text || 'Untitled';
+// Note: We're storing HTML directly, so we don't need to render markdown
+// Use title from frontmatter
+const title = entry.data.title || 'Untitled';
 const frontmatter = { ...entry.data, title };
 
 // Helper function to format dates
@@ -284,26 +284,23 @@ const shortenAddress = (address: string | undefined) => {
 		</div>
 	)}
 
-	<div class="proposal-content">
-		<Content />
+	{/* Proposal body content (converted from markdown to HTML) */}
+	{entry.body && (
+		<div class="sl-markdown-content" set:html={entry.body} />
+	)}
 
-		{/* Fallback: If Content component doesn't render, try raw body */}
-		{entry.body && (
-			<div class="proposal-body-fallback" set:html={entry.body} />
-		)}
-	</div>
-
-	{/* Debug: Show content information */}
-	<script define:vars={{ hasBody: !!entry.body, bodyLength: entry.body?.length || 0 }}>
-		console.log('Entry has body:', hasBody);
-		console.log('Body length:', bodyLength);
-
-		document.addEventListener('DOMContentLoaded', () => {
-			const content = document.querySelector('.proposal-content');
-			if (content && content.textContent.trim().length === 0) {
-				console.warn('Proposal content is empty');
-				console.warn('This might mean the body is HTML that needs to be rendered differently');
-			}
-		});
-	</script>
+	{!entry.body && (
+		<div style="
+			padding: 2rem;
+			background: var(--sl-color-gray-6, #23262f);
+			border-radius: 0.5rem;
+			text-align: center;
+			color: var(--sl-color-gray-3, #888c96);
+		">
+			<p>No proposal content available.</p>
+			<p style="font-size: 0.875rem; margin-top: 0.5rem;">
+				This proposal may not have included a description, or the content could not be loaded.
+			</p>
+		</div>
+	)}
 </StarlightPage>

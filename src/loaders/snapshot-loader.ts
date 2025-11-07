@@ -9,6 +9,7 @@
  * - Filters for closed proposals
  * - Calculates if proposal passed (>50% threshold)
  * - Sanitizes content for security
+ * - Converts markdown to HTML for proper rendering
  * - Returns typed entries for Astro content collections
  *
  * Future enhancements:
@@ -19,6 +20,7 @@
 
 import { request, gql } from 'graphql-request';
 import type { Loader } from 'astro/loaders';
+import { marked } from 'marked';
 
 const SNAPSHOT_GRAPHQL_ENDPOINT = 'https://hub.snapshot.org/graphql';
 const SNAPSHOT_SPACE = 'superbenefit.eth';
@@ -220,6 +222,16 @@ export function snapshotLoader(options: {
             logger.info(`Content analysis: HTML tags: ${hasHtmlTags}, Markdown syntax: ${hasMarkdown}`);
           }
 
+          // Convert markdown to HTML for proper rendering
+          const htmlBody = sanitizedBody.length > 0
+            ? await marked(sanitizedBody, {
+                breaks: true, // Convert single line breaks to <br>
+                gfm: true, // GitHub Flavored Markdown
+              })
+            : '';
+
+          logger.info(`Converted to HTML, length: ${htmlBody.length} characters`);
+
           // Prepare the data object that matches our schema
           const data = {
             title: proposal.title,
@@ -242,13 +254,12 @@ export function snapshotLoader(options: {
             percentageVoted: outcome.percentageVoted,
           };
 
-          // Store the entry with markdown body
-          // Note: The body will be processed as markdown by Astro's render function
+          // Store the entry with HTML body
+          // The markdown has been converted to HTML for proper rendering
           store.set({
             id,
             data,
-            body: sanitizedBody,
-            filePath: `${id}.md`, // Mark as markdown for proper rendering
+            body: htmlBody,
             digest: generateDigest(data),
           });
 

@@ -15,6 +15,10 @@ export default defineConfig({
 					href: 'https://github.com/superbenefit/governance-site'
 				},
 			],
+			customCss: [
+				'./src/styles/design-tokens.css',
+				'./src/styles/custom.css',
+			],
 			sidebar: [
 				{
 					label: 'Agreements',

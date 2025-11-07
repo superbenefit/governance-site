@@ -1,0 +1,148 @@
+/**
+ * SuperBenefit Design System Tokens
+ *
+ * Color palette and design tokens for the SuperBenefit Governance site.
+ * Source: temp/design-system.md
+ *
+ * These tokens are referenced by custom.css which maps them to Starlight variables.
+ */
+
+:root {
+  /* ========================================
+     PRIMARY PALETTE - Source of Truth
+     ======================================== */
+
+  --sb-cream: #F5D5B3;      /* Warm cream/tan */
+  --sb-charcoal: #2F2F2F;   /* Dark charcoal */
+  --sb-orange: #EA8D3C;     /* Vibrant orange */
+  --sb-rust: #D04A26;       /* Deep rust/burnt orange */
+  --sb-sage: #7FA568;       /* Sage green */
+
+  /* ========================================
+     DERIVED BACKGROUNDS (from Cream)
+     ======================================== */
+
+  --sb-light: #FAF6F0;      /* Cream lightened 10% */
+  --sb-light-alt: #F5D5B3;  /* Pure cream */
+  --sb-surface: #FDFBF8;    /* Cream lightened 15% */
+
+  /* ========================================
+     DERIVED GRAYS (from Charcoal)
+     ======================================== */
+
+  --sb-dark: #2F2F2F;       /* Pure charcoal */
+  --sb-darkgray: #4A4A4A;   /* Charcoal lightened 20% */
+  --sb-gray: #6B6B6B;       /* Charcoal lightened 40% */
+  --sb-lightgray: #A8A8A8;  /* Charcoal lightened 60% */
+  --sb-border: #D4D4D4;     /* Charcoal lightened 80% */
+
+  /* ========================================
+     PRIMARY ACCENTS (from Sage)
+     ======================================== */
+
+  --sb-primary: #7FA568;        /* Pure sage */
+  --sb-primary-dark: #628249;   /* Sage darkened 20% */
+  --sb-primary-light: #9BB886;  /* Sage lightened 20% */
+  --sb-primary-pale: #C5D4BA;   /* Sage lightened 40% */
+
+  /* ========================================
+     SECONDARY ACCENTS (from Orange/Rust)
+     ======================================== */
+
+  --sb-secondary: #EA8D3C;      /* Pure orange */
+  --sb-tertiary: #D04A26;       /* Pure rust */
+  --sb-accent-warm: #F5A05A;    /* Orange lightened 20% */
+  --sb-accent-hot: #B83A1F;     /* Rust darkened 20% */
+
+  /* ========================================
+     FUNCTIONAL COLORS
+     ======================================== */
+
+  --sb-highlight: rgba(127, 165, 104, 0.15);    /* Sage at 15% opacity */
+  --sb-text-highlight: rgba(234, 141, 60, 0.1); /* Orange at 10% opacity */
+  --sb-shadow: rgba(47, 47, 47, 0.1);           /* Charcoal at 10% opacity */
+
+  /* ========================================
+     SPACING SYSTEM (Base: 4px)
+     ======================================== */
+
+  --sb-space-0: 0;
+  --sb-space-px: 1px;
+  --sb-space-0-5: 0.125rem;  /* 2px */
+  --sb-space-1: 0.25rem;     /* 4px */
+  --sb-space-1-5: 0.375rem;  /* 6px */
+  --sb-space-2: 0.5rem;      /* 8px */
+  --sb-space-2-5: 0.625rem;  /* 10px */
+  --sb-space-3: 0.75rem;     /* 12px */
+  --sb-space-4: 1rem;        /* 16px */
+  --sb-space-5: 1.25rem;     /* 20px */
+  --sb-space-6: 1.5rem;      /* 24px */
+  --sb-space-8: 2rem;        /* 32px */
+  --sb-space-10: 2.5rem;     /* 40px */
+  --sb-space-12: 3rem;       /* 48px */
+  --sb-space-16: 4rem;       /* 64px */
+  --sb-space-20: 5rem;       /* 80px */
+  --sb-space-24: 6rem;       /* 96px */
+
+  /* ========================================
+     BORDER RADIUS
+     ======================================== */
+
+  --sb-radius-none: 0;
+  --sb-radius-sm: 0.25rem;   /* 4px */
+  --sb-radius-md: 0.375rem;  /* 6px */
+  --sb-radius-lg: 0.5rem;    /* 8px */
+  --sb-radius-xl: 0.75rem;   /* 12px */
+  --sb-radius-2xl: 1rem;     /* 16px */
+  --sb-radius-full: 9999px;
+
+  /* ========================================
+     SHADOWS (using Charcoal base)
+     ======================================== */
+
+  --sb-shadow-sm: 0 1px 2px 0 rgba(47, 47, 47, 0.05);
+  --sb-shadow-md: 0 4px 6px -1px rgba(47, 47, 47, 0.1),
+                  0 2px 4px -1px rgba(47, 47, 47, 0.06);
+  --sb-shadow-lg: 0 10px 15px -3px rgba(47, 47, 47, 0.1),
+                  0 4px 6px -2px rgba(47, 47, 47, 0.05);
+  --sb-shadow-xl: 0 20px 25px -5px rgba(47, 47, 47, 0.1),
+                  0 10px 10px -5px rgba(47, 47, 47, 0.04);
+  --sb-shadow-2xl: 0 25px 50px -12px rgba(47, 47, 47, 0.25);
+
+  /* ========================================
+     TRANSITIONS
+     ======================================== */
+
+  --sb-transition-fast: 150ms ease-in-out;
+  --sb-transition-base: 250ms ease-in-out;
+  --sb-transition-slow: 350ms ease-in-out;
+  --sb-transition-slower: 500ms ease-in-out;
+}
+
+/* ========================================
+   DARK MODE COLORS
+   ======================================== */
+
+[data-theme="dark"] {
+  /* Inverted Backgrounds */
+  --sb-light: #1F1F1F;          /* Near black */
+  --sb-light-alt: #2A2A2A;      /* Slightly lighter */
+  --sb-surface: #252525;        /* Surface */
+
+  /* Inverted Grays */
+  --sb-dark: #F5F5F5;           /* Near white */
+  --sb-darkgray: #D0D0D0;       /* Light gray */
+  --sb-gray: #9A9A9A;           /* Medium gray */
+  --sb-lightgray: #5A5A5A;      /* Dark gray */
+  --sb-border: #3F3F3F;         /* Border gray */
+
+  /* Adjusted Accents for Dark Mode */
+  --sb-primary: #9BB886;        /* Lighter sage */
+  --sb-primary-dark: #7FA568;   /* Original sage */
+  --sb-secondary: #F5A05A;      /* Lighter orange */
+  --sb-tertiary: #EA8D3C;       /* Original orange as tertiary */
+
+  /* Dark Mode Specific */
+  --sb-highlight: rgba(127, 165, 104, 0.2);     /* Sage at 20% opacity */
+  --sb-text-highlight: rgba(234, 141, 60, 0.15); /* Orange at 15% opacity */
+}

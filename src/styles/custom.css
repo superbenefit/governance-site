@@ -1,0 +1,160 @@
+/**
+ * SuperBenefit Governance Site - Custom Styles
+ *
+ * Maps SuperBenefit design tokens to Starlight CSS variables.
+ * Also includes custom component styling and overrides.
+ */
+
+/* ========================================
+   STARLIGHT THEME CUSTOMIZATION
+   Map SuperBenefit tokens to Starlight variables
+   ======================================== */
+
+:root {
+  /* Accent Colors - Map to Sage palette */
+  --sl-color-accent-low: var(--sb-primary-pale);   /* #C5D4BA - sage pale */
+  --sl-color-accent: var(--sb-primary);             /* #7FA568 - sage */
+  --sl-color-accent-high: var(--sb-primary-dark);   /* #628249 - sage dark */
+
+  /* Gray Scale - Map to Charcoal derivatives */
+  --sl-color-gray-1: var(--sb-surface);     /* #FDFBF8 - lightest (backgrounds) */
+  --sl-color-gray-2: var(--sb-cream);       /* #F5D5B3 - cream */
+  --sl-color-gray-3: var(--sb-lightgray);   /* #A8A8A8 - light gray (muted text) */
+  --sl-color-gray-4: var(--sb-gray);        /* #6B6B6B - medium gray */
+  --sl-color-gray-5: var(--sb-darkgray);    /* #4A4A4A - dark gray (borders) */
+  --sl-color-gray-6: var(--sb-charcoal);    /* #2F2F2F - darkest (text) */
+
+  /* Typography - Using Starlight defaults for now */
+  /* (Custom fonts will be added later) */
+
+  /* Borders */
+  --sl-color-hairline-light: var(--sb-border);
+  --sl-color-hairline: var(--sb-darkgray);
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+  /* These are already set in design-tokens.css but we ensure they apply to Starlight */
+  --sl-color-gray-1: var(--sb-light);         /* #1F1F1F */
+  --sl-color-gray-2: var(--sb-light-alt);     /* #2A2A2A */
+  --sl-color-gray-3: var(--sb-lightgray);     /* #5A5A5A */
+  --sl-color-gray-4: var(--sb-gray);          /* #9A9A9A */
+  --sl-color-gray-5: var(--sb-darkgray);      /* #D0D0D0 */
+  --sl-color-gray-6: var(--sb-dark);          /* #F5F5F5 */
+}
+
+/* ========================================
+   COMPONENT CUSTOMIZATION
+   ======================================== */
+
+/* Card Enhancements */
+.sl-card,
+.card {
+  border-radius: var(--sb-radius-lg);
+  box-shadow: var(--sb-shadow-md);
+  transition: box-shadow var(--sb-transition-base), transform var(--sb-transition-base);
+}
+
+.sl-card:hover,
+.card:hover {
+  box-shadow: var(--sb-shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Link Styling */
+a {
+  transition: color var(--sb-transition-fast);
+}
+
+a:hover {
+  color: var(--sb-primary-dark);
+}
+
+/* Button Enhancements */
+button,
+.button {
+  border-radius: var(--sb-radius-md);
+  transition: all var(--sb-transition-base);
+}
+
+/* Code Blocks */
+pre {
+  border-radius: var(--sb-radius-md);
+  box-shadow: var(--sb-shadow-sm);
+}
+
+code {
+  border-radius: var(--sb-radius-sm);
+}
+
+/* Focus States - Accessibility */
+*:focus-visible {
+  outline: 2px solid var(--sb-primary);
+  outline-offset: 2px;
+  border-radius: var(--sb-radius-sm);
+}
+
+/* ========================================
+   HERO / SPLASH PAGE STYLING
+   ======================================== */
+
+.hero {
+  position: relative;
+}
+
+.hero h1 {
+  color: var(--sl-color-gray-6);
+}
+
+.hero .tagline {
+  color: var(--sl-color-gray-4);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Text Colors */
+.text-primary { color: var(--sb-primary); }
+.text-secondary { color: var(--sb-secondary); }
+.text-tertiary { color: var(--sb-tertiary); }
+.text-muted { color: var(--sb-gray); }
+
+/* Background Colors */
+.bg-cream { background-color: var(--sb-cream); }
+.bg-sage { background-color: var(--sb-primary); }
+.bg-orange { background-color: var(--sb-secondary); }
+.bg-surface { background-color: var(--sb-surface); }
+
+/* Border Colors */
+.border-sage { border-color: var(--sb-primary); }
+.border-orange { border-color: var(--sb-secondary); }
+.border-subtle { border-color: var(--sb-border); }
+
+/* Interactive Effects */
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px var(--sb-highlight);
+}
+
+.active-depress:active {
+  transform: translateY(1px);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

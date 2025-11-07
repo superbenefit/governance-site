@@ -621,32 +621,34 @@ starlight-theme-select select {
    ======================================== */
 
 /*
- * Starlight's right sidebar is too wide due to its calculated width.
- * The container is in a flexbox, so we need to control flex properties.
+ * The lg:sl-flex container has two children that share extra space:
+ * - right-sidebar-container: var(--sl-sidebar-width) + (extra / 2)
+ * - main-pane: var(--sl-content-width) + (extra / 2)
  *
- * Approach: Use flex-basis and flex-shrink/grow to control sizing
- * in the flex context, overriding the width calculation.
+ * To constrain the right sidebar to just var(--sl-sidebar-width),
+ * we need the main-pane to absorb ALL the extra space, not just half.
+ *
+ * Solution: Fix right sidebar width and make main-pane flexible.
  */
 
 @media (min-width: 72rem) {
-	/* Control the flex container's space distribution */
-	div[class*="lg:sl-flex"],
-	.lg\:sl-flex {
-		gap: 0;
-	}
-
-	/* Set flex properties on the right sidebar container */
+	/* Fix right sidebar to exact width */
 	aside[class*="right-sidebar-container"],
 	.right-sidebar-container {
-		flex-basis: var(--sl-sidebar-width);
-		flex-grow: 0;
-		flex-shrink: 0;
+		flex: 0 0 var(--sl-sidebar-width);
 		width: var(--sl-sidebar-width);
-		min-width: var(--sl-sidebar-width);
 		max-width: var(--sl-sidebar-width);
 	}
 
-	/* Constrain the inner fixed element too */
+	/* Make main-pane flexible to absorb remaining space */
+	div[class*="main-pane"],
+	.main-pane {
+		flex: 1 1 auto;
+		width: auto;
+		max-width: none;
+	}
+
+	/* Constrain the inner fixed element */
 	.right-sidebar-container .right-sidebar,
 	aside[class*="right-sidebar-container"] > div {
 		width: var(--sl-sidebar-width);

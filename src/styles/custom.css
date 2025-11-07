@@ -358,22 +358,21 @@ starlight-theme-select select {
 }
 
 .sidebar-content a:visited {
-	color: var(--sb-tertiary);
-	text-decoration-color: var(--sb-tertiary);
+	color: var(--sb-primary);
+	text-decoration-color: var(--sb-primary);
 }
 
 .sidebar-content a:hover {
-	color: var(--sb-darkgray);
-	text-decoration-color: var(--sb-darkgray);
+	color: #3A3A3A;
+	text-decoration-color: #3A3A3A;
 }
 
 .sidebar-content a[aria-current="page"],
 .sidebar-content a[aria-current="page"]:link,
 .sidebar-content a[aria-current="page"]:visited {
-	color: var(--sb-primary);
-	background-color: var(--sb-highlight);
-	border-left: 3px solid var(--sb-primary);
-	text-decoration-color: var(--sb-primary);
+	color: var(--sb-rust);
+	border-left: 3px solid var(--sb-rust);
+	text-decoration-color: var(--sb-rust);
 }
 
 .sidebar-content details > summary {
@@ -600,22 +599,21 @@ starlight-theme-select select {
 	}
 
 	.sidebar-content a:visited {
-		color: var(--sb-secondary);
-		text-decoration-color: var(--sb-secondary);
+		color: var(--sb-primary);
+		text-decoration-color: var(--sb-primary);
 	}
 
 	.sidebar-content a:hover {
-		color: var(--sb-lightgray);
-		text-decoration-color: var(--sb-lightgray);
+		color: #DADADA;
+		text-decoration-color: #DADADA;
 	}
 
 	.sidebar-content a[aria-current="page"],
 	.sidebar-content a[aria-current="page"]:link,
 	.sidebar-content a[aria-current="page"]:visited {
-		color: var(--sb-primary);
-		background-color: var(--sb-highlight);
-		border-left: 3px solid var(--sb-primary);
-		text-decoration-color: var(--sb-primary);
+		color: var(--sb-secondary);
+		border-left: 3px solid var(--sb-secondary);
+		text-decoration-color: var(--sb-secondary);
 	}
 
 	.sidebar-content details > summary {

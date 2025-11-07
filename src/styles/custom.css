@@ -255,12 +255,9 @@ button[data-open-modal] kbd kbd {
 }
 
 /* Theme Selector - Increase spacing between icon and text */
-starlight-theme-select label {
-	gap: 0.75rem;
-}
-
-starlight-theme-select .label-icon {
-	margin-inline-end: 0.25rem;
+starlight-theme-select select {
+	padding-inline-start: calc(var(--sl-label-icon-size, 0.875rem) + 1rem);
+	padding-inline-end: calc(var(--sl-caret-size, 1.25rem) + 1rem);
 }
 
 /* Right Sidebar (Table of Contents) - Make narrower to match left sidebar */

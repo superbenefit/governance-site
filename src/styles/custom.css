@@ -11,6 +11,9 @@
    ======================================== */
 
 :root {
+  /* Layout Dimensions */
+  --sl-sidebar-width: 21rem;  /* Increased from default 18.75rem for better readability */
+
   /* Accent Colors - Map to Sage palette */
   --sl-color-accent-low: var(--sb-primary-pale);   /* #C5D4BA - sage pale */
   --sl-color-accent: var(--sb-primary);             /* #7FA568 - sage */
@@ -349,14 +352,17 @@ starlight-theme-select select {
 
 /* Enhanced navigation with brand colors */
 .sidebar-content a,
-.sidebar-content a:link,
-.sidebar-content a:visited {
+.sidebar-content a:link {
 	color: var(--sb-charcoal);
 	text-decoration-color: var(--sb-charcoal);
 }
 
+.sidebar-content a:visited {
+	color: var(--sb-tertiary);
+	text-decoration-color: var(--sb-tertiary);
+}
+
 .sidebar-content a:hover {
-	background-color: var(--sb-text-highlight);
 	color: var(--sb-darkgray);
 	text-decoration-color: var(--sb-darkgray);
 }
@@ -364,10 +370,10 @@ starlight-theme-select select {
 .sidebar-content a[aria-current="page"],
 .sidebar-content a[aria-current="page"]:link,
 .sidebar-content a[aria-current="page"]:visited {
+	color: var(--sb-primary);
 	background-color: var(--sb-highlight);
-	color: var(--sb-primary-dark);
 	border-left: 3px solid var(--sb-primary);
-	text-decoration-color: var(--sb-primary-dark);
+	text-decoration-color: var(--sb-primary);
 }
 
 .sidebar-content details > summary {
@@ -588,15 +594,28 @@ starlight-theme-select select {
 
 	/* Navigation colors in dark mode */
 	.sidebar-content a,
-	.sidebar-content a:link,
-	.sidebar-content a:visited {
+	.sidebar-content a:link {
 		color: var(--sb-darkgray);
 		text-decoration-color: var(--sb-darkgray);
+	}
+
+	.sidebar-content a:visited {
+		color: var(--sb-secondary);
+		text-decoration-color: var(--sb-secondary);
 	}
 
 	.sidebar-content a:hover {
 		color: var(--sb-lightgray);
 		text-decoration-color: var(--sb-lightgray);
+	}
+
+	.sidebar-content a[aria-current="page"],
+	.sidebar-content a[aria-current="page"]:link,
+	.sidebar-content a[aria-current="page"]:visited {
+		color: var(--sb-primary);
+		background-color: var(--sb-highlight);
+		border-left: 3px solid var(--sb-primary);
+		text-decoration-color: var(--sb-primary);
 	}
 
 	.sidebar-content details > summary {

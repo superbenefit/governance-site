@@ -646,6 +646,7 @@ starlight-theme-select select {
 		flex: 1 1 auto;
 		width: auto;
 		max-width: none;
+		--sl-content-margin-inline: auto;
 	}
 
 	/* Constrain the inner fixed element */

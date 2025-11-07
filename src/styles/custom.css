@@ -348,28 +348,35 @@ starlight-theme-select select {
 }
 
 /* Enhanced navigation with brand colors */
-.sidebar-content nav a {
-	color: var(--sl-color-gray-4);
+.sidebar-content nav a,
+.sidebar-content nav a:link,
+.sidebar-content nav a:visited {
+	color: var(--sb-charcoal);
+	text-decoration-color: var(--sb-charcoal);
 }
 
 .sidebar-content nav a:hover {
 	background-color: var(--sb-text-highlight);
-	color: var(--sb-charcoal);
+	color: var(--sb-darkgray);
+	text-decoration-color: var(--sb-darkgray);
 }
 
-.sidebar-content nav a[aria-current="page"] {
+.sidebar-content nav a[aria-current="page"],
+.sidebar-content nav a[aria-current="page"]:link,
+.sidebar-content nav a[aria-current="page"]:visited {
 	background-color: var(--sb-highlight);
 	color: var(--sb-primary-dark);
 	border-left: 3px solid var(--sb-primary);
+	text-decoration-color: var(--sb-primary-dark);
 }
 
 .sidebar-content nav details > summary {
-	color: var(--sl-color-gray-4);
+	color: var(--sb-charcoal);
 	transition: color var(--sb-transition-fast);
 }
 
 .sidebar-content nav details > summary:hover {
-	color: var(--sb-charcoal);
+	color: var(--sb-darkgray);
 }
 
 /* Responsive adjustments */
@@ -577,6 +584,27 @@ starlight-theme-select select {
 	button[data-open-modal] kbd kbd {
 		background-color: transparent;
 		border: none;
+	}
+
+	/* Navigation colors in dark mode */
+	.sidebar-content nav a,
+	.sidebar-content nav a:link,
+	.sidebar-content nav a:visited {
+		color: var(--sb-darkgray);
+		text-decoration-color: var(--sb-darkgray);
+	}
+
+	.sidebar-content nav a:hover {
+		color: var(--sb-lightgray);
+		text-decoration-color: var(--sb-lightgray);
+	}
+
+	.sidebar-content nav details > summary {
+		color: var(--sb-darkgray);
+	}
+
+	.sidebar-content nav details > summary:hover {
+		color: var(--sb-lightgray);
 	}
 }
 

@@ -211,13 +211,28 @@ const sortedProposals = proposalsWithTitles.sort((a, b) => {
 		}
 
 		.status-passed {
-			background: var(--sl-color-green-low);
-			color: var(--sl-color-green-high);
+			background: var(--sb-highlight);
+			color: var(--sb-primary-dark);
+			border: 1px solid var(--sb-primary);
 		}
 
 		.status-rejected {
-			background: var(--sl-color-red-low);
-			color: var(--sl-color-red-high);
+			background: var(--sb-text-highlight);
+			color: var(--sb-rust);
+			border: 1px solid var(--sb-tertiary);
+		}
+
+		/* Dark mode status badge adjustments */
+		[data-theme="dark"] .status-passed {
+			background: var(--sb-highlight);
+			color: var(--sb-primary-light);
+			border: 1px solid var(--sb-primary);
+		}
+
+		[data-theme="dark"] .status-rejected {
+			background: rgba(208, 74, 38, 0.2);
+			color: var(--sb-secondary);
+			border: 1px solid var(--sb-tertiary);
 		}
 	</style>
 </StarlightPage>

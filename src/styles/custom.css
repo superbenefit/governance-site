@@ -833,8 +833,9 @@ starlight-theme-select select {
 }
 
 [data-theme="dark"] .status-badge {
-	background: var(--sb-light);
-	color: var(--sb-charcoal);
+	background: var(--sb-highlight);
+	color: var(--sb-primary-light);
+	border: 1px solid var(--sb-primary);
 }
 
 [data-theme="dark"] .metadata-label {
@@ -853,11 +854,11 @@ starlight-theme-select select {
 
 [data-theme="dark"] .choices-summary {
 	color: var(--sb-dark);
-	background: var(--sb-darkgray);
+	background: #3A3A3A;
 }
 
 [data-theme="dark"] .choices-summary:hover {
-	background: var(--sb-gray);
+	background: var(--sb-lightgray);
 }
 
 [data-theme="dark"] .choices-content {

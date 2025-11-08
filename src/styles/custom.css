@@ -658,6 +658,234 @@ starlight-theme-select select {
 }
 
 /* ========================================
+   PROPOSAL VOTING RESULTS COMPONENT
+   Theme-aware styling for light and dark modes
+   ======================================== */
+
+.snapshot-metadata {
+	background: var(--sb-cream);
+	border: 1px solid var(--sb-border);
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin-top: 2rem;
+}
+
+.voting-results-header {
+	background: var(--sb-primary);
+	color: var(--sb-charcoal);
+	padding: 0.75rem 1rem;
+	border-radius: 0.375rem;
+	margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+}
+
+.header-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.voting-results-header h2 {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 700;
+	min-width: 0;
+	flex: 1 1 auto;
+	color: var(--sb-charcoal);
+}
+
+.status-badge {
+	font-size: 0.875rem;
+	font-weight: 600;
+	padding: 0.25rem 0.75rem;
+	background: var(--sb-charcoal);
+	color: var(--sb-cream);
+	border-radius: 0.25rem;
+	text-transform: uppercase;
+	white-space: nowrap;
+	flex: 0 0 auto;
+}
+
+.metadata-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.metadata-label {
+	display: block;
+	color: var(--sb-gray);
+	font-size: 0.875rem;
+	margin-bottom: 0.25rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.metadata-value {
+	color: var(--sb-charcoal);
+}
+
+.metadata-value-large {
+	font-size: 1.25rem;
+	color: var(--sb-charcoal);
+	font-weight: 700;
+}
+
+.metadata-value-large.metadata-accent {
+	color: var(--sb-primary-dark);
+}
+
+.metadata-value-mono {
+	color: var(--sb-charcoal);
+	font-family: monospace;
+	font-size: 0.875rem;
+}
+
+.choices-details {
+	margin-top: 1.5rem;
+}
+
+.choices-summary {
+	cursor: pointer;
+	color: var(--sb-charcoal);
+	font-weight: 600;
+	padding: 0.75rem;
+	background: var(--sb-lightgray);
+	border-radius: 0.375rem;
+	user-select: none;
+}
+
+.choices-summary:hover {
+	background: var(--sb-gray);
+}
+
+.choices-content {
+	margin-top: 1rem;
+	background: var(--sb-surface);
+	border-radius: 0.375rem;
+	padding: 1rem;
+	border: 1px solid var(--sb-border);
+}
+
+.choice-row {
+	display: flex;
+	justify-content: space-between;
+	padding: 0.75rem;
+	border-bottom: 1px solid var(--sb-border);
+	align-items: center;
+}
+
+.choice-row:last-child {
+	border-bottom: none;
+}
+
+.choice-name {
+	color: var(--sb-charcoal);
+	font-weight: 500;
+}
+
+.choice-score {
+	color: var(--sb-darkgray);
+	font-family: monospace;
+	font-size: 0.875rem;
+}
+
+.choice-percentage {
+	color: var(--sb-gray);
+}
+
+.metadata-footer {
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	border-top: 2px solid var(--sb-border);
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1.25rem;
+	font-size: 0.875rem;
+}
+
+.snapshot-link {
+	color: var(--sb-primary);
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.snapshot-link:hover {
+	color: var(--sb-primary-dark);
+	text-decoration: underline;
+}
+
+/* Dark mode overrides for voting results */
+[data-theme="dark"] .snapshot-metadata {
+	background: var(--sb-light-alt);
+	border-color: var(--sb-border);
+}
+
+[data-theme="dark"] .voting-results-header {
+	background: var(--sb-primary);
+	color: var(--sb-light);
+}
+
+[data-theme="dark"] .voting-results-header h2 {
+	color: var(--sb-light);
+}
+
+[data-theme="dark"] .status-badge {
+	background: var(--sb-light);
+	color: var(--sb-charcoal);
+}
+
+[data-theme="dark"] .metadata-label {
+	color: var(--sb-gray);
+}
+
+[data-theme="dark"] .metadata-value,
+[data-theme="dark"] .metadata-value-large,
+[data-theme="dark"] .metadata-value-mono {
+	color: var(--sb-dark);
+}
+
+[data-theme="dark"] .metadata-value-large.metadata-accent {
+	color: var(--sb-primary-light);
+}
+
+[data-theme="dark"] .choices-summary {
+	color: var(--sb-dark);
+	background: var(--sb-darkgray);
+}
+
+[data-theme="dark"] .choices-summary:hover {
+	background: var(--sb-gray);
+}
+
+[data-theme="dark"] .choices-content {
+	background: var(--sb-light);
+	border-color: var(--sb-border);
+}
+
+[data-theme="dark"] .choice-name {
+	color: var(--sb-dark);
+}
+
+[data-theme="dark"] .choice-score {
+	color: var(--sb-darkgray);
+}
+
+[data-theme="dark"] .choice-percentage {
+	color: var(--sb-gray);
+}
+
+[data-theme="dark"] .snapshot-link {
+	color: var(--sb-primary-light);
+}
+
+[data-theme="dark"] .snapshot-link:hover {
+	color: var(--sb-primary);
+}
+
+/* ========================================
    RESPONSIVE DESIGN
    ======================================== */
 

@@ -71,69 +71,23 @@ const shortenAddress = (address: string | undefined) => {
 	)}
 
 	{entry.data.snapshotId && (
-		<div class="snapshot-metadata" style="
-			background: var(--sl-color-gray-6, #23262f);
-			border: 1px solid var(--sl-color-gray-5, #333741);
-			border-radius: 0.5rem;
-			padding: 1.5rem;
-			margin-top: 2rem;
-		">
-			<div style="
-				background: var(--sl-color-accent-high, #0ea5e9);
-				color: var(--sl-color-black, #000);
-				padding: 0.75rem 1rem;
-				border-radius: 0.375rem;
-				margin: -1.5rem -1.5rem 1.5rem -1.5rem;
-			">
-				<div style="
-					display: flex;
-					justify-content: space-between;
-					align-items: flex-start;
-					gap: 1rem;
-					flex-wrap: wrap;
-				">
-					<h2 style="margin: 0; font-size: 1.25rem; font-weight: 700; min-width: 0; flex: 1 1 auto;">
-						Voting Results
-					</h2>
+		<div class="snapshot-metadata">
+			<div class="voting-results-header">
+				<div class="header-content">
+					<h2>Voting Results</h2>
 					{entry.data.status && (
-						<span style="
-							font-size: 0.875rem;
-							font-weight: 600;
-							padding: 0.25rem 0.75rem;
-							background: var(--sl-color-black, #000);
-							color: var(--sl-color-white, #fff);
-							border-radius: 0.25rem;
-							text-transform: uppercase;
-							white-space: nowrap;
-							flex: 0 0 auto;
-						">
+						<span class="status-badge">
 							{entry.data.status}
 						</span>
 					)}
 				</div>
 			</div>
 
-			<div class="metadata-grid" style="
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-				gap: 1.5rem;
-				margin-bottom: 1.5rem;
-			">
+			<div class="metadata-grid">
 				{entry.data.winningChoice && (
 					<div>
-						<strong style="
-							display: block;
-							color: var(--sl-color-gray-3, #888c96);
-							font-size: 0.875rem;
-							margin-bottom: 0.25rem;
-							text-transform: uppercase;
-							letter-spacing: 0.05em;
-						">Result</strong>
-						<div style="
-							font-size: 1.25rem;
-							color: var(--sl-color-white, #fff);
-							font-weight: 700;
-						">
+						<strong class="metadata-label">Result</strong>
+						<div class="metadata-value-large">
 							{entry.data.winningChoice}
 						</div>
 					</div>
@@ -141,19 +95,8 @@ const shortenAddress = (address: string | undefined) => {
 
 				{entry.data.percentageVoted !== undefined && (
 					<div>
-						<strong style="
-							display: block;
-							color: var(--sl-color-gray-3, #888c96);
-							font-size: 0.875rem;
-							margin-bottom: 0.25rem;
-							text-transform: uppercase;
-							letter-spacing: 0.05em;
-						">Winning Vote</strong>
-						<div style="
-							font-size: 1.25rem;
-							color: var(--sl-color-accent, #0ea5e9);
-							font-weight: 700;
-						">
+						<strong class="metadata-label">Winning Vote</strong>
+						<div class="metadata-value-large metadata-accent">
 							{entry.data.percentageVoted.toFixed(2)}%
 						</div>
 					</div>
@@ -161,19 +104,8 @@ const shortenAddress = (address: string | undefined) => {
 
 				{entry.data.votes !== undefined && (
 					<div>
-						<strong style="
-							display: block;
-							color: var(--sl-color-gray-3, #888c96);
-							font-size: 0.875rem;
-							margin-bottom: 0.25rem;
-							text-transform: uppercase;
-							letter-spacing: 0.05em;
-						">Total Voters</strong>
-						<div style="
-							font-size: 1.25rem;
-							color: var(--sl-color-white, #fff);
-							font-weight: 700;
-						">
+						<strong class="metadata-label">Total Voters</strong>
+						<div class="metadata-value-large">
 							{entry.data.votes}
 						</div>
 					</div>
@@ -181,43 +113,17 @@ const shortenAddress = (address: string | undefined) => {
 			</div>
 
 			{entry.data.choices && entry.data.scores && (
-				<details style="margin-top: 1.5rem;">
-					<summary style="
-						cursor: pointer;
-						color: var(--sl-color-white, #fff);
-						font-weight: 600;
-						padding: 0.75rem;
-						background: var(--sl-color-gray-5, #333741);
-						border-radius: 0.375rem;
-						user-select: none;
-					">
+				<details class="choices-details">
+					<summary class="choices-summary">
 						📊 View All Choices & Scores
 					</summary>
-					<div style="
-						margin-top: 1rem;
-						background: var(--sl-color-gray-7, #17181c);
-						border-radius: 0.375rem;
-						padding: 1rem;
-					">
+					<div class="choices-content">
 						{entry.data.choices.map((choice: string, index: number) => (
-							<div style="
-								display: flex;
-								justify-content: space-between;
-								padding: 0.75rem;
-								border-bottom: 1px solid var(--sl-color-gray-6, #23262f);
-								align-items: center;
-							">
-								<span style="
-									color: var(--sl-color-white, #fff);
-									font-weight: 500;
-								">{choice}</span>
-								<span style="
-									color: var(--sl-color-gray-2, #b4b7be);
-									font-family: monospace;
-									font-size: 0.875rem;
-								">
+							<div class="choice-row">
+								<span class="choice-name">{choice}</span>
+								<span class="choice-score">
 									{entry.data.scores![index]?.toFixed(2) || 0}
-									<span style="color: var(--sl-color-gray-3, #888c96);">
+									<span class="choice-percentage">
 										{' '}({entry.data.scores_total ? ((entry.data.scores![index] / entry.data.scores_total) * 100).toFixed(2) : 0}%)
 									</span>
 								</span>
@@ -227,29 +133,11 @@ const shortenAddress = (address: string | undefined) => {
 				</details>
 			)}
 
-			<div style="
-				margin-top: 1.5rem;
-				padding-top: 1.5rem;
-				border-top: 2px solid var(--sl-color-gray-5, #333741);
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-				gap: 1.25rem;
-				font-size: 0.875rem;
-			">
+			<div class="metadata-footer">
 				{entry.data.author && (
 					<div>
-						<strong style="
-							display: block;
-							color: var(--sl-color-gray-3, #888c96);
-							margin-bottom: 0.25rem;
-							text-transform: uppercase;
-							letter-spacing: 0.05em;
-						">Author</strong>
-						<div style="
-							color: var(--sl-color-white, #fff);
-							font-family: monospace;
-							font-size: 0.875rem;
-						">
+						<strong class="metadata-label">Author</strong>
+						<div class="metadata-value-mono">
 							{shortenAddress(entry.data.author)}
 						</div>
 					</div>
@@ -257,14 +145,8 @@ const shortenAddress = (address: string | undefined) => {
 
 				{entry.data.startDate && (
 					<div>
-						<strong style="
-							display: block;
-							color: var(--sl-color-gray-3, #888c96);
-							margin-bottom: 0.25rem;
-							text-transform: uppercase;
-							letter-spacing: 0.05em;
-						">Start Date</strong>
-						<div style="color: var(--sl-color-white, #fff);">
+						<strong class="metadata-label">Start Date</strong>
+						<div class="metadata-value">
 							{formatDate(entry.data.startDate)}
 						</div>
 					</div>
@@ -272,14 +154,8 @@ const shortenAddress = (address: string | undefined) => {
 
 				{entry.data.endDate && (
 					<div>
-						<strong style="
-							display: block;
-							color: var(--sl-color-gray-3, #888c96);
-							margin-bottom: 0.25rem;
-							text-transform: uppercase;
-							letter-spacing: 0.05em;
-						">End Date</strong>
-						<div style="color: var(--sl-color-white, #fff);">
+						<strong class="metadata-label">End Date</strong>
+						<div class="metadata-value">
 							{formatDate(entry.data.endDate)}
 						</div>
 					</div>
@@ -287,23 +163,13 @@ const shortenAddress = (address: string | undefined) => {
 
 				{entry.data.snapshotId && (
 					<div>
-						<strong style="
-							display: block;
-							color: var(--sl-color-gray-3, #888c96);
-							margin-bottom: 0.25rem;
-							text-transform: uppercase;
-							letter-spacing: 0.05em;
-						">View Original</strong>
+						<strong class="metadata-label">View Original</strong>
 						<div>
 							<a
 								href={`https://snapshot.org/#/superbenefit.eth/proposal/${entry.data.snapshotId}`}
 								target="_blank"
 								rel="noopener noreferrer"
-								style="
-									color: var(--sl-color-accent, #0ea5e9);
-									text-decoration: none;
-									font-weight: 600;
-								"
+								class="snapshot-link"
 							>
 								Snapshot.org ↗
 							</a>

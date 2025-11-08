@@ -64,6 +64,43 @@ agreementsWithTitles.forEach(agreement => {
 const formatFolderName = (folder: string) => {
 	return folder.charAt(0).toUpperCase() + folder.slice(1);
 };
+
+// Load folder metadata from index.md files
+interface FolderMetadata {
+	title: string;
+	description?: string;
+}
+
+async function getFolderMetadata(folder: string): Promise<FolderMetadata> {
+	try {
+		const indexPath = `./src/content/governance/agreements/${folder}/index.md`;
+		const indexContent = await readFile(indexPath, 'utf-8');
+
+		// Extract frontmatter
+		const frontmatterMatch = indexContent.match(/^---\n([\s\S]*?)\n---/);
+		if (frontmatterMatch) {
+			const frontmatter = frontmatterMatch[1];
+			const titleMatch = frontmatter.match(/^title:\s*(.+)$/m);
+			const descMatch = frontmatter.match(/^description:\s*(.+)$/m);
+
+			return {
+				title: titleMatch ? titleMatch[1].trim() : formatFolderName(folder),
+				description: descMatch ? descMatch[1].trim() : undefined,
+			};
+		}
+	} catch (error) {
+		// Index file doesn't exist or couldn't be read
+	}
+
+	// Fall back to formatted folder name
+	return { title: formatFolderName(folder) };
+}
+
+// Build folder metadata map
+const folderMetadata = new Map<string, FolderMetadata>();
+for (const folder of Object.keys(groupedAgreements)) {
+	folderMetadata.set(folder, await getFolderMetadata(folder));
+}
 ---
 
 <StarlightPage frontmatter={{ title, description }}>
@@ -73,9 +110,14 @@ const formatFolderName = (folder: string) => {
 		<hr />
 
 		<h2>Browse All Agreements</h2>
-		{Object.entries(groupedAgreements).sort().map(([folder, items]) => (
+		{Object.entries(groupedAgreements).sort().map(([folder, items]) => {
+			const metadata = folderMetadata.get(folder) || { title: formatFolderName(folder) };
+			return (
 			<div class="agreement-group">
-				<h3 class="group-title">{formatFolderName(folder)}</h3>
+				<h3 class="group-title">{metadata.title}</h3>
+				{metadata.description && (
+					<p class="group-description">{metadata.description}</p>
+				)}
 				<ul class="entry-list">
 					{items.map(agreement => (
 						<li class="entry-item">
@@ -94,7 +136,8 @@ const formatFolderName = (folder: string) => {
 					))}
 				</ul>
 			</div>
-		))}
+			);
+		})}
 	</div>
 
 	<style>
@@ -111,10 +154,17 @@ const formatFolderName = (folder: string) => {
 		.group-title {
 			font-size: var(--text-2xl, 1.5rem);
 			margin-top: var(--sb-space-8);
-			margin-bottom: var(--sb-space-4);
+			margin-bottom: var(--sb-space-2);
 			color: var(--sl-color-gray-6);
-			border-bottom: 1px solid var(--sl-color-gray-5);
+		}
+
+		.group-description {
+			color: var(--sl-color-gray-4);
+			margin: 0 0 var(--sb-space-4);
+			font-size: var(--text-base, 1rem);
+			line-height: 1.5;
 			padding-bottom: var(--sb-space-2);
+			border-bottom: 1px solid var(--sl-color-gray-5);
 		}
 
 		.entry-list {

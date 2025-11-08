@@ -1,4 +1,15 @@
 ---
+/**
+ * Policies Index Page
+ *
+ * Displays the main policies landing page with content from policies/index.md
+ * and a directory of all policies grouped by folder.
+ *
+ * Features:
+ * - Loads page content from governance submodule index.md
+ * - Groups policies by folder with folder titles from folder index.md files
+ * - Shows title, description, and status for each policy
+ */
 import { getCollection, render } from 'astro:content';
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { readFile } from 'node:fs/promises';

@@ -4,11 +4,13 @@
  *
  * Overrides Starlight's default Sidebar to dynamically generate navigation
  * from governance content collections (agreements, policies, proposals).
+ *
+ * This component loads folder titles from index.md files to provide meaningful
+ * navigation labels instead of auto-formatted slugs.
  */
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
-import { Icon } from '@astrojs/starlight/components';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 

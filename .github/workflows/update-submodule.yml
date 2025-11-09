@@ -1,0 +1,36 @@
+name: Update Governance Submodule
+
+on:
+  repository_dispatch:
+    types: [governance-updated]
+  workflow_dispatch:  # Allow manual trigger for testing
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update submodule to latest
+        run: |
+          git submodule update --remote src/content/governance
+
+      - name: Commit and push if changed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git add src/content/governance
+            git commit -m "chore: Update governance submodule to latest"
+            git push
+          else
+            echo "No changes to commit"
+          fi

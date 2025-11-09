@@ -552,7 +552,6 @@ This approach provides:
 - **Single source of truth** - Content lives in governance repository
 - **Full routing control** - Not constrained by Starlight conventions
 - **Starlight UI benefits** - Uses Starlight for aesthetics without its routing limitations
-- **Type safety** - Schema validation catches content errors
 - **Maintainability** - Clear separation between site code and governance content
 - **Flexibility** - Easy to add new collections or modify routing logic
 

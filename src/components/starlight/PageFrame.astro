@@ -8,6 +8,7 @@
  * Desktop behavior remains unchanged (splash pages don't show sidebar).
  */
 import MobileMenuToggle from 'virtual:starlight/components/MobileMenuToggle';
+import Sidebar from './Sidebar.astro';
 
 const { hasSidebar } = Astro.locals.starlightRoute;
 ---
@@ -26,12 +27,12 @@ const { hasSidebar } = Astro.locals.starlightRoute;
 				</div>
 			</nav>
 		) : (
-			<!-- On splash pages: show only mobile menu button, but hide sidebar pane on desktop -->
+			<!-- On splash pages: render custom sidebar for mobile menu -->
 			<nav class="sidebar print:hidden splash-mobile-nav" aria-label={Astro.locals.t('sidebarNav.accessibleLabel')}>
 				<MobileMenuToggle />
 				<div id="starlight__sidebar" class="sidebar-pane">
 					<div class="sidebar-content sl-flex">
-						<slot name="sidebar" />
+						<Sidebar />
 					</div>
 				</div>
 			</nav>

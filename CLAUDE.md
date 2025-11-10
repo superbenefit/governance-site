@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is an Astro-based documentation site using the Starlight framework. Starlight is Astro's official documentation theme designed for building beautiful, accessible, and performant documentation websites.
 
+The site serves SuperBenefit DAO's governance documentation with content loaded from a git submodule and proposals fetched dynamically from the Snapshot API.
+
 ## Git Commit Attribution
 
 **CRITICAL**: All commits MUST include proper co-author attribution. This is collaborative work between Claude and the project maintainer.
@@ -25,65 +27,185 @@ Co-authored-by: rathermercurial <rathermercurial@protonmail.com>
 
 This is non-negotiable - every commit must credit the human collaborator who initiated the project, planned the work, wrote the prompts, and reviews all changes.
 
-## Development Commands
+Use the `.gitmessage` template to automatically include the co-author line:
+```bash
+git config commit.template .gitmessage
+```
+
+## Quick Reference
+
+### Development Commands
 
 All commands are run from the root of the project:
 
-- `npm install` - Install dependencies
-- `npm run dev` - Start local dev server at `localhost:4321`
-- `npm run build` - Build production site to `./dist/`
-- `npm run preview` - Preview production build locally
-- `npm run astro ...` - Run Astro CLI commands (e.g., `npm run astro add`, `npm run astro check`)
+```bash
+npm install          # Install dependencies
+npm run dev          # Start local dev server at localhost:4321
+npm run build        # Build production site to ./dist/
+npm run preview      # Preview production build locally
+npm run astro ...    # Run Astro CLI commands
+```
 
-## Architecture
+See [.docs/DEVELOPMENT.md](.docs/DEVELOPMENT.md) for detailed development instructions.
 
-### Content Structure
+### Project Structure
 
-- **Governance Content**: Governance documentation content lives in `src/content/governance/` (git submodule)
-  - `agreements/` - Relational foundations and core agreements
-  - `policies/` - Coordination mechanisms across operational domains
-  - `proposals/` - Decision-making archive and institutional memory
-- **Content Format**: Documentation pages are written in Markdown (`.md`) or MDX (`.mdx`)
-- **Content Collections**: The site uses Astro's content collections system configured in `src/content.config.ts`
-  - Uses custom `glob()` loaders for governance collections
-  - Uses Starlight's `docsLoader()` and `docsSchema()` for site pages
+```
+governance-site/
+├── .docs/                    # Technical documentation
+│   ├── DEVELOPMENT.md       # Development guide
+│   ├── ARCHITECTURE.md      # Architecture documentation
+│   ├── CONTENT.md          # Content management guide
+│   └── SNAPSHOT_LOADER.md  # Snapshot integration details
+├── src/
+│   ├── content/
+│   │   └── governance/      # Git submodule (governance repo)
+│   ├── pages/               # Route pages
+│   ├── components/          # Custom components
+│   │   └── starlight/
+│   │       └── Sidebar.astro    # Custom navigation sidebar
+│   ├── loaders/             # Custom content loaders
+│   │   └── snapshot-loader.ts   # Snapshot API integration
+│   └── content.config.ts    # Content collections config
+├── astro.config.mjs         # Astro and Starlight config
+├── CONTRIBUTING.md          # Contribution guidelines
+└── README.md                # Project overview
+```
 
-### Configuration
+## Architecture Overview
 
-- **Main Config**: `astro.config.mjs` - Contains Astro and Starlight configuration
-  - Site title, social links, and sidebar navigation are configured here
-  - Sidebar can use manual entries or `autogenerate` for directories
-- **TypeScript**: Uses Astro's strict TypeScript configuration (`astro/tsconfigs/strict`)
+### Content Collections
 
-### Assets
+Three governance content collections defined in `src/content.config.ts`:
 
-- **Images**: Store in `src/assets/` and reference with relative paths in Markdown
-- **Static Files**: Place in `public/` directory (favicons, robots.txt, etc.)
+1. **agreements** - Loaded from `src/content/governance/agreements/` via `glob()` loader
+2. **policies** - Loaded from `src/content/governance/policies/` via `glob()` loader
+3. **proposals** - Fetched from Snapshot API via custom `snapshotLoader()`
 
-### Page Types
+### Key Files
 
-- **Splash Pages**: Landing pages without sidebars (use `template: splash` in frontmatter)
-- **Doc Pages**: Standard documentation pages with sidebar navigation (default)
-- **Frontmatter**: Each page requires `title` and `description` in YAML frontmatter
+- **astro.config.mjs** - Main Astro and Starlight configuration
+- **src/content.config.ts** - Content collections and schema definitions
+- **src/components/starlight/Sidebar.astro** - Custom navigation sidebar (overrides Starlight)
+- **src/loaders/snapshot-loader.ts** - Snapshot API integration with caching
+- **src/pages/[collection]/[...slug].astro** - Dynamic route pages
+- **src/pages/[collection]/index.astro** - Collection index pages
 
-### Components
+### Content Management
 
-Starlight provides built-in components that can be imported in MDX files:
-- `Card` and `CardGrid` - For creating card-based layouts
-- Other Starlight components available from `@astrojs/starlight/components`
+**Governance Content:**
+- Lives in separate [governance repository](https://github.com/superbenefit/governance)
+- Integrated via git submodule at `src/content/governance/`
+- **Never edit submodule files directly** - make changes in governance repository
 
-## Working with Content
+**Update Governance Content:**
+```bash
+git submodule update --remote src/content/governance
+git add src/content/governance
+git commit -m "Update governance submodule to latest
 
-Governance content is managed in the separate [governance repository](https://github.com/superbenefit/governance) and integrated via git submodule.
+Co-authored-by: rathermercurial <rathermercurial@protonmail.com>"
+```
 
-For governance content updates:
-1. Make changes in the governance repository
-2. Update the submodule in this repo: `git submodule update --remote src/content/governance`
-3. Commit the submodule reference update
+See [.docs/CONTENT.md](.docs/CONTENT.md) for detailed submodule workflow.
 
-The custom navigation sidebar (`src/components/starlight/Sidebar.astro`) automatically reflects content structure from the governance collections.
+### Routing
+
+Manual dynamic routes for full control:
+- `/agreements/[...slug].astro` - Renders all agreements
+- `/policies/[...slug].astro` - Renders all policies
+- `/proposals/[...slug].astro` - Renders all proposals
+
+Each uses `getStaticPaths()` to query its collection and wraps content in `<StarlightPage>` component.
+
+### Navigation
+
+Custom sidebar in `src/components/starlight/Sidebar.astro`:
+- Dynamically generated from content collections
+- Hierarchical organization by folder structure
+- Clickable top-level folders link to index pages
+- Smart folder collapse/expand based on current page
+
+## Common Tasks
+
+### Adding/Modifying Pages
+
+For governance content pages:
+1. Make changes in the [governance repository](https://github.com/superbenefit/governance)
+2. Update submodule: `git submodule update --remote src/content/governance`
+3. Commit submodule reference update
+
+For site functionality:
+1. Modify files in `src/pages/`, `src/components/`, etc.
+2. Test with `npm run dev`
+3. Commit with proper co-author attribution
+
+### Modifying Navigation
+
+Edit `src/components/starlight/Sidebar.astro` to change navigation structure or behavior.
+
+### Modifying Content Collections
+
+Edit `src/content.config.ts` to:
+- Add/remove collections
+- Modify schemas
+- Change loader configurations
+
+### Working with Snapshot Loader
+
+Configure in `src/content.config.ts`:
+```typescript
+proposals: defineCollection({
+  loader: snapshotLoader({
+    space: 'superbenefit.eth',
+    limit: 20,
+    includeFailedProposals: false,
+    useMockData: false,  // Set true for offline development
+  }),
+  schema: snapshotProposalSchema,
+})
+```
+
+Cache location: `src/.snapshot-cache.json` (gitignored)
+
+See [.docs/SNAPSHOT_LOADER.md](.docs/SNAPSHOT_LOADER.md) for complete details.
+
+## Documentation
+
+Comprehensive documentation is organized in the [.docs](.docs/) directory:
+
+- **[DEVELOPMENT.md](.docs/DEVELOPMENT.md)** - Development setup, commands, common tasks, troubleshooting
+- **[ARCHITECTURE.md](.docs/ARCHITECTURE.md)** - Technical architecture, design decisions, content collections, routing, navigation
+- **[CONTENT.md](.docs/CONTENT.md)** - Content structure, git submodule workflow, schema, troubleshooting
+- **[SNAPSHOT_LOADER.md](.docs/SNAPSHOT_LOADER.md)** - Snapshot API integration, caching, configuration, future enhancements
+
+For contribution workflow, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Key Principles
+
+1. **Single Source of Truth** - Governance content lives in governance repository
+2. **Co-Author Attribution** - Every commit includes co-author credit
+3. **Type Safety** - Use TypeScript and schema validation
+4. **Clear Separation** - Site code separate from governance content
+5. **Documentation First** - Update docs when making architectural changes
 
 ## Build Output
 
 - Production builds output to `./dist/`
-- The build process uses Sharp for image optimization
+- Uses Sharp for image optimization
+- Generates static HTML with optimized assets
+- Snapshot data fetched at build time with intelligent caching
+
+## Troubleshooting
+
+For development issues, see:
+- [.docs/DEVELOPMENT.md](.docs/DEVELOPMENT.md#troubleshooting)
+- [.docs/CONTENT.md](.docs/CONTENT.md#troubleshooting)
+- [.docs/SNAPSHOT_LOADER.md](.docs/SNAPSHOT_LOADER.md#troubleshooting)
+
+## External Resources
+
+- [Astro Documentation](https://docs.astro.build)
+- [Starlight Documentation](https://starlight.astro.build/)
+- [Governance Repository](https://github.com/superbenefit/governance)
+- [Snapshot API Docs](https://docs.snapshot.org/graphql-api)

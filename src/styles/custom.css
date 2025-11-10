@@ -216,6 +216,18 @@ dialog {
 	background-color: var(--sb-light);
 }
 
+/* Search result excerpt text - high contrast in light mode */
+#starlight__search .pagefind-ui__result-excerpt {
+	color: var(--sb-darkgray);
+}
+
+/* Search result highlight (matched terms) - green for visibility */
+#starlight__search mark {
+	background-color: var(--sb-primary-pale);
+	color: var(--sb-primary-dark);
+	font-weight: 600;
+}
+
 /* Search Button - Remove border and fix kbd styling */
 button[data-open-modal] {
 	border: none;
@@ -471,6 +483,18 @@ starlight-theme-select select {
 	#starlight__search .pagefind-ui__result-title,
 	#starlight__search .pagefind-ui__result-nested {
 		background-color: var(--sb-surface);
+	}
+
+	/* Search result excerpt text - high contrast */
+	#starlight__search .pagefind-ui__result-excerpt {
+		color: var(--sb-dark);
+	}
+
+	/* Search result highlight (matched terms) - green for visibility in dark mode */
+	#starlight__search mark {
+		background-color: rgba(155, 184, 134, 0.3);
+		color: var(--sb-primary);
+		font-weight: 600;
 	}
 
 	/* Dropdown menus */

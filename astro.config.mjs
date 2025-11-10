@@ -41,8 +41,10 @@ export default defineConfig({
 			],
 			// Override Sidebar component with custom implementation
 			// The custom sidebar dynamically generates navigation from governance collections
+			// Override PageFrame to show mobile menu button on splash pages
 			components: {
 				Sidebar: './src/components/starlight/Sidebar.astro',
+				PageFrame: './src/components/starlight/PageFrame.astro',
 			},
 		}),
 	],

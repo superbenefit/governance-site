@@ -455,7 +455,7 @@ Main Astro and Starlight configuration:
 
 ```javascript
 export default defineConfig({
-  site: 'https://governance.superbenefit.xyz',
+  site: 'https://governance.superbenefit.org',
   integrations: [
     starlight({
       title: 'SuperBenefit Governance',

@@ -4,7 +4,7 @@
 
 The official documentation website for SuperBenefit DAO's governance framework, built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build/).
 
-**Live Site:** [governance.superbenefit.xyz](https://governance.superbenefit.xyz)
+**Live Site:** [governance.superbenefit.org](https://governance.superbenefit.org)
 
 ## About
 
@@ -89,9 +89,9 @@ governance-site/
 
 ## Resources
 
-- **Live Site:** [governance.superbenefit.xyz](https://governance.superbenefit.xyz)
+- **Live Site:** [governance.superbenefit.org](https://governance.superbenefit.org)
 - **Governance Repository:** [github.com/superbenefit/governance](https://github.com/superbenefit/governance)
-- **SuperBenefit Website:** [superbenefit.xyz](https://superbenefit.xyz)
+- **SuperBenefit Website:** [superbenefit.org](https://superbenefit.org)
 - **Snapshot Space:** [snapshot.org/#/superbenefit.eth](https://snapshot.org/#/superbenefit.eth)
 - **Discord:** [discord.gg/superbenefit](https://discord.gg/superbenefit)
 - **Astro Docs:** [docs.astro.build](https://docs.astro.build)

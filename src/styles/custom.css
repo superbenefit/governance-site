@@ -556,6 +556,12 @@ starlight-theme-select select {
 	starlight-menu-button,
 	.mobile-menu-toggle button {
 		color: #FFFFFF;
+		background-color: transparent;
+	}
+
+	starlight-menu-button button,
+	starlight-menu-button > button {
+		background-color: transparent;
 	}
 
 	starlight-menu-button svg,

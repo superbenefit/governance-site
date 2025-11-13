@@ -276,10 +276,6 @@ If you need help:
 
 All contributors will be recognized in the project. Your GitHub profile will appear in the contributors list automatically.
 
-## License
-
-By contributing to this project, you agree that your contributions will be licensed under the same license as the project (CC0-1.0 for content, standard open-source for code).
-
 ## Additional Resources
 
 - [Development Guide](.docs/DEVELOPMENT.md) - Development setup and commands

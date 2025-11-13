@@ -286,7 +286,3 @@ By contributing to this project, you agree that your contributions will be licen
 - [Architecture Guide](.docs/ARCHITECTURE.md) - Technical architecture details
 - [Content Guide](.docs/CONTENT.md) - Working with governance content
 - [Snapshot Loader](.docs/SNAPSHOT_LOADER.md) - Snapshot integration details
-
----
-
-Thank you for contributing to SuperBenefit Governance Site! Your efforts help make DAO governance more transparent and accessible.

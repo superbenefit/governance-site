@@ -2,22 +2,26 @@
   "name": "sb-governance-starlight",
   "type": "module",
   "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "deploy": "astro build && wrangler deploy",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.36.1",
-    "astro": "^5.6.1",
+    "@astrojs/starlight": "^0.37.6",
+    "astro": "^5.17.3",
     "graphql": "^16.12.0",
     "graphql-request": "^7.3.1",
     "marked": "^17.0.0",
     "sharp": "^0.34.2"
   },
   "devDependencies": {
-    "wrangler": "^4.46.0"
+    "wrangler": "^4.68.0"
   }
 }

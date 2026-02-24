@@ -4,7 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://governance.superbenefit.org',
+	site: 'https://governance.superbenefit.dev',
 	vite: {
 		ssr: {
 			// Allow marked to be processed by Vite for SSR
